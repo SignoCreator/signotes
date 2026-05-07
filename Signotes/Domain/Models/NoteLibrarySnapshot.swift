@@ -34,6 +34,34 @@ extension NoteLibrarySnapshot {
         folders.first { $0.id == id }
     }
 
+    func parentFolder(of folderID: UUID) -> NotebookFolder? {
+        folders.first { $0.childFolderIDs.contains(folderID) }
+    }
+
+    func rootFolder(containing folderID: UUID) -> NotebookFolder? {
+        var currentID = folderID
+        var visited = Set<UUID>()
+
+        while let parent = parentFolder(of: currentID), !visited.contains(parent.id) {
+            visited.insert(parent.id)
+            currentID = parent.id
+        }
+
+        return folder(id: currentID)
+    }
+
+    func folderPath(to folderID: UUID) -> [NotebookFolder] {
+        guard let folder = folder(id: folderID) else {
+            return []
+        }
+
+        if let parent = parentFolder(of: folderID) {
+            return folderPath(to: parent.id) + [folder]
+        }
+
+        return [folder]
+    }
+
     func childFolders(of folderID: UUID?) -> [NotebookFolder] {
         guard let folderID, let folder = folder(id: folderID) else {
             return rootFolders

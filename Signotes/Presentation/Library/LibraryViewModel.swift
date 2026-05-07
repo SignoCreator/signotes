@@ -3,7 +3,8 @@ import Foundation
 @MainActor
 final class LibraryViewModel: ObservableObject {
     @Published private(set) var library = NoteLibrarySnapshot()
-    @Published var selectedFolderID: UUID?
+    @Published var selectedRootFolderID: UUID?
+    @Published private(set) var currentFolderID: UUID?
     @Published var errorMessage: String?
 
     private let notesRepository: NotesRepository
@@ -16,70 +17,128 @@ final class LibraryViewModel: ObservableObject {
         library.rootFolders
     }
 
-    var selectedFolder: NotebookFolder? {
-        guard let selectedFolderID else {
-            return rootFolders.first
+    var selectedRootFolder: NotebookFolder? {
+        guard let selectedRootFolderID else {
+            return nil
         }
 
-        return library.folder(id: selectedFolderID)
+        return library.folder(id: selectedRootFolderID)
     }
 
-    var visibleChildFolders: [NotebookFolder] {
-        library.childFolders(of: selectedFolder?.id)
+    var currentFolder: NotebookFolder? {
+        guard let currentFolderID else {
+            return nil
+        }
+
+        return library.folder(id: currentFolderID)
     }
 
-    var visibleNotes: [NoteDocument] {
-        guard let folderID = selectedFolder?.id else {
+    var parentFolder: NotebookFolder? {
+        guard let currentFolderID else {
+            return nil
+        }
+
+        return library.parentFolder(of: currentFolderID)
+    }
+
+    var currentPath: [NotebookFolder] {
+        guard let currentFolderID else {
             return []
         }
 
-        return library.notes(in: folderID)
+        return library.folderPath(to: currentFolderID)
+    }
+
+    var visibleChildFolders: [NotebookFolder] {
+        library.childFolders(of: currentFolderID)
+    }
+
+    var visibleNotes: [NoteDocument] {
+        guard let currentFolderID else {
+            return []
+        }
+
+        return library.notes(in: currentFolderID)
     }
 
     func load() async {
         do {
             library = try await notesRepository.loadLibrary()
-            selectedFolderID = selectedFolderID ?? library.rootFolders.first?.id
+            if selectedRootFolderID == nil {
+                selectInitialRootFolder()
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
+    func selectRootFolder(id: UUID?) {
+        selectedRootFolderID = id
+        currentFolderID = id
+    }
+
     func selectFolder(_ folder: NotebookFolder) {
-        selectedFolderID = folder.id
+        currentFolderID = folder.id
+        selectedRootFolderID = library.rootFolder(containing: folder.id)?.id
     }
 
-    func createFolder() {
-        Task {
-            do {
-                var updatedLibrary = library
-                let folder = try updatedLibrary.addFolder(
-                    name: "Nuova cartella",
-                    parentID: selectedFolder?.id
-                )
-                try await notesRepository.saveLibrary(updatedLibrary)
-                library = updatedLibrary
-                selectedFolderID = folder.id
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-        }
-    }
-
-    func createNote() {
-        guard let folderID = selectedFolder?.id else {
+    func navigateToParentFolder() {
+        guard let parentFolder else {
             return
         }
 
-        Task {
-            do {
-                var updatedLibrary = library
-                _ = try updatedLibrary.addNote(title: "Nuova lezione", folderID: folderID)
-                try await notesRepository.saveLibrary(updatedLibrary)
-                library = updatedLibrary
-            } catch {
-                errorMessage = error.localizedDescription
-            }
+        selectFolder(parentFolder)
+    }
+
+    func createRootFolder() async {
+        do {
+            var updatedLibrary = library
+            let folder = try updatedLibrary.addFolder(name: "Nuova cartella")
+            try await notesRepository.saveLibrary(updatedLibrary)
+            library = updatedLibrary
+            selectRootFolder(id: folder.id)
+        } catch {
+            errorMessage = error.localizedDescription
         }
+    }
+
+    func createChildFolder() async {
+        guard let currentFolderID else {
+            return
+        }
+
+        do {
+            var updatedLibrary = library
+            let folder = try updatedLibrary.addFolder(
+                name: "Nuova cartella",
+                parentID: currentFolderID
+            )
+            try await notesRepository.saveLibrary(updatedLibrary)
+            library = updatedLibrary
+            selectFolder(folder)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func createNote() async {
+        guard let currentFolderID else {
+            return
+        }
+
+        do {
+            var updatedLibrary = library
+            _ = try updatedLibrary.addNote(title: "Nuova lezione", folderID: currentFolderID)
+            try await notesRepository.saveLibrary(updatedLibrary)
+            library = updatedLibrary
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func selectInitialRootFolder() {
+        let firstRootID = library.rootFolders.first?.id
+        selectedRootFolderID = firstRootID
+        currentFolderID = firstRootID
     }
 }

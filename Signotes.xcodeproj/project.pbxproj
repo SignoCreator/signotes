@@ -31,6 +31,7 @@
 		A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* Presentation/Library/LibraryView.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
+		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000004 /* LibraryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/LibraryViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 			children = (
 				B20000000000000000000001 /* DomainModelTests.swift */,
 				B20000000000000000000003 /* LocalPersistenceTests.swift */,
+				B20000000000000000000004 /* LibraryViewModelTests.swift */,
 			);
 			path = SignotesTests;
 			sourceTree = "<group>";
@@ -275,6 +278,7 @@
 			files = (
 				A20000000000000000000001 /* DomainModelTests.swift in Sources */,
 				A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */,
+				A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

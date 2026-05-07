@@ -8,7 +8,7 @@ struct LibraryView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $viewModel.selectedFolderID) {
+            List(selection: selectedRootFolderBinding) {
                 Section("Cartelle") {
                     ForEach(viewModel.rootFolders) { folder in
                         Label(folder.name, systemImage: "folder")
@@ -20,22 +20,36 @@ struct LibraryView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        viewModel.createFolder()
+                        Task {
+                            await viewModel.createRootFolder()
+                        }
                     } label: {
                         Label("Nuova cartella", systemImage: "folder.badge.plus")
                     }
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
         } content: {
             LibraryFolderContentView(
-                folder: viewModel.selectedFolder,
+                folder: viewModel.currentFolder,
+                parentFolder: viewModel.parentFolder,
+                path: viewModel.currentPath,
                 childFolders: viewModel.visibleChildFolders,
                 notes: viewModel.visibleNotes,
                 notesRepository: notesRepository,
                 drawingRepository: drawingRepository,
                 onSelectFolder: viewModel.selectFolder,
-                onCreateFolder: viewModel.createFolder,
-                onCreateNote: viewModel.createNote
+                onNavigateBack: viewModel.navigateToParentFolder,
+                onCreateFolder: {
+                    Task {
+                        await viewModel.createChildFolder()
+                    }
+                },
+                onCreateNote: {
+                    Task {
+                        await viewModel.createNote()
+                    }
+                }
             )
         } detail: {
             ContentUnavailableView(
@@ -43,6 +57,8 @@ struct LibraryView: View {
                 systemImage: "square.and.pencil",
                 description: Text("Apri una nota dalla libreria.")
             )
+            .navigationTitle("Editor")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .task {
             await viewModel.load()
@@ -66,20 +82,44 @@ struct LibraryView: View {
             }
         )
     }
+
+    private var selectedRootFolderBinding: Binding<UUID?> {
+        Binding(
+            get: { viewModel.selectedRootFolderID },
+            set: { viewModel.selectRootFolder(id: $0) }
+        )
+    }
 }
 
 private struct LibraryFolderContentView: View {
     let folder: NotebookFolder?
+    let parentFolder: NotebookFolder?
+    let path: [NotebookFolder]
     let childFolders: [NotebookFolder]
     let notes: [NoteDocument]
     let notesRepository: NotesRepository
     let drawingRepository: DrawingRepository
     let onSelectFolder: (NotebookFolder) -> Void
+    let onNavigateBack: () -> Void
     let onCreateFolder: () -> Void
     let onCreateNote: () -> Void
 
     var body: some View {
         List {
+            if let folder {
+                Section {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(folder.name)
+                            .font(.title2.weight(.semibold))
+                        Text(path.map(\.name).joined(separator: " / "))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .padding(.vertical, 6)
+                }
+            }
+
             if childFolders.isEmpty && notes.isEmpty {
                 ContentUnavailableView(
                     "Cartella vuota",
@@ -125,8 +165,19 @@ private struct LibraryFolderContentView: View {
                 }
             }
         }
-        .navigationTitle(folder?.name ?? "Libreria")
+        .navigationTitle("Cartella")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if parentFolder != nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        onNavigateBack()
+                    } label: {
+                        Label("Indietro", systemImage: "chevron.left")
+                    }
+                }
+            }
+
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {
                     onCreateFolder()

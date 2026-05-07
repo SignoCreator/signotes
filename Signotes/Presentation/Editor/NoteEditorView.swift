@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct NoteEditorView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject var viewModel: NoteEditorViewModel
     @State private var zoomScale: CGFloat = 1
     @State private var resetZoomToken = 0
@@ -24,6 +25,7 @@ struct NoteEditorView: View {
                         page: page,
                         drawing: $viewModel.drawing,
                         tool: viewModel.tool,
+                        toolKind: viewModel.selectedTool,
                         onDrawingChange: viewModel.save
                     )
                     .frame(width: pageSize.width, height: pageSize.height)
@@ -60,8 +62,28 @@ struct NoteEditorView: View {
                 }
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            if viewModel.page != nil {
+                EditorToolPaletteView(selectedTool: $viewModel.selectedTool)
+                    .padding(.bottom, 8)
+            }
+        }
         .task {
             await viewModel.load()
+        }
+        .onDisappear {
+            Task {
+                await viewModel.flushPendingDrawing()
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase != .active else {
+                return
+            }
+
+            Task {
+                await viewModel.flushPendingDrawing()
+            }
         }
         .alert("Signotes error", isPresented: errorBinding) {
             Button("OK") {

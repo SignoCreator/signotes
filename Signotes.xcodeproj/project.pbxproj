@@ -38,6 +38,8 @@
 		A1000000000000000000001D /* Presentation/Library/LibraryDragItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */; };
 		A1000000000000000000001E /* Presentation/Canvas/CanvasViewportConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */; };
 		A1000000000000000000001F /* Presentation/Canvas/ZoomablePageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */; };
+		A10000000000000000000020 /* Presentation/Editor/EditorDrawingTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */; };
+		A10000000000000000000021 /* Presentation/Editor/EditorToolPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
@@ -88,6 +90,8 @@
 		B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryDragItem.swift; sourceTree = "<group>"; };
 		B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/CanvasViewportConfiguration.swift; sourceTree = "<group>"; };
 		B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/ZoomablePageScrollView.swift; sourceTree = "<group>"; };
+		B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorDrawingTool.swift; sourceTree = "<group>"; };
+		B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorToolPaletteView.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
@@ -142,6 +146,8 @@
 				B10000000000000000000010 /* Data/FileSystemDrawingRepository.swift */,
 				B10000000000000000000011 /* Presentation/Editor/NoteEditorViewModel.swift */,
 				B10000000000000000000012 /* Presentation/Editor/NoteEditorView.swift */,
+				B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */,
+				B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */,
 				B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */,
 				B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */,
 				B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */,
@@ -297,6 +303,8 @@
 				A1000000000000000000000F /* Data/FileSystemDrawingRepository.swift in Sources */,
 				A10000000000000000000010 /* Presentation/Editor/NoteEditorViewModel.swift in Sources */,
 				A10000000000000000000011 /* Presentation/Editor/NoteEditorView.swift in Sources */,
+				A10000000000000000000020 /* Presentation/Editor/EditorDrawingTool.swift in Sources */,
+				A10000000000000000000021 /* Presentation/Editor/EditorToolPaletteView.swift in Sources */,
 				A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */,
 				A10000000000000000000013 /* Presentation/Canvas/PageBackgroundView.swift in Sources */,
 				A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */,

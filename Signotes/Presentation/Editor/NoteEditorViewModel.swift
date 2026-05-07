@@ -1,27 +1,40 @@
 import Foundation
 import PencilKit
+import UIKit
 
 @MainActor
 final class NoteEditorViewModel: ObservableObject {
     @Published private(set) var title = "Nota"
     @Published private(set) var page: NotePage?
     @Published var drawing = PKDrawing()
+    @Published var selectedTool: EditorDrawingTool = .fountainPen
     @Published var errorMessage: String?
 
-    let tool: PKTool = NoteEditorViewModel.defaultWritingTool()
+    var tool: any PKTool {
+        selectedTool.makeTool()
+    }
 
     private let noteID: UUID
     private let notesRepository: NotesRepository
     private let drawingRepository: DrawingRepository
+    private let autosaveDelay: Duration
+    private var pendingDrawing: PKDrawing?
+    private var autosaveTask: Task<Void, Never>?
 
-    init(noteID: UUID, notesRepository: NotesRepository, drawingRepository: DrawingRepository) {
+    init(
+        noteID: UUID,
+        notesRepository: NotesRepository,
+        drawingRepository: DrawingRepository,
+        autosaveDelay: Duration = .milliseconds(700)
+    ) {
         self.noteID = noteID
         self.notesRepository = notesRepository
         self.drawingRepository = drawingRepository
+        self.autosaveDelay = autosaveDelay
     }
 
     static func defaultWritingTool() -> PKInkingTool {
-        PKInkingTool(.fountainPen, color: .black, width: 2.4)
+        PKInkingTool(.fountainPen, color: UIColor.black, width: 2.4)
     }
 
     func load() async {
@@ -45,21 +58,25 @@ final class NoteEditorViewModel: ObservableObject {
 
     func save(_ drawing: PKDrawing) {
         self.drawing = drawing
+        pendingDrawing = drawing
+        scheduleAutosave()
+    }
 
-        guard let resourceID = page?.drawingResourceID else {
+    func flushPendingDrawing() async {
+        autosaveTask?.cancel()
+        autosaveTask = nil
+
+        guard let pendingDrawing, let resourceID = page?.drawingResourceID else {
             return
         }
 
-        let data = drawing.dataRepresentation()
+        self.pendingDrawing = nil
+        let data = pendingDrawing.dataRepresentation()
 
-        Task {
-            do {
-                try await drawingRepository.saveDrawingData(data, resourceID: resourceID)
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+        do {
+            try await drawingRepository.saveDrawingData(data, resourceID: resourceID)
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 
@@ -76,6 +93,19 @@ final class NoteEditorViewModel: ObservableObject {
             self.page?.template = template
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func scheduleAutosave() {
+        autosaveTask?.cancel()
+        autosaveTask = Task { [weak self, autosaveDelay] in
+            do {
+                try await Task.sleep(for: autosaveDelay)
+            } catch {
+                return
+            }
+
+            await self?.flushPendingDrawing()
         }
     }
 }

@@ -1,4 +1,5 @@
 import PencilKit
+import UIKit
 import XCTest
 @testable import Signotes
 
@@ -9,7 +10,21 @@ final class NoteEditorViewModelTests: XCTestCase {
 
         XCTAssertEqual(tool.inkType, .fountainPen)
         XCTAssertEqual(tool.color, .black)
+        XCTAssertEqual(tool.color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)), .black)
         XCTAssertEqual(tool.width, 2.4, accuracy: 0.000_001)
+    }
+
+    func testEditorToolDefaultsToFountainPen() {
+        let viewModel = NoteEditorViewModel(
+            noteID: UUID(),
+            notesRepository: EditorInMemoryNotesRepository(snapshot: .seed),
+            drawingRepository: EditorInMemoryDrawingRepository()
+        )
+
+        XCTAssertEqual(viewModel.selectedTool, .fountainPen)
+        let tool = viewModel.tool as? PKInkingTool
+        XCTAssertEqual(tool?.inkType, .fountainPen)
+        XCTAssertEqual(tool?.color, .black)
     }
 
     func testUpdateTemplatePersistsMetadataWithoutSavingDrawingBlob() async throws {
@@ -39,6 +54,51 @@ final class NoteEditorViewModelTests: XCTestCase {
         XCTAssertEqual(savedPage.drawingResourceID, page.drawingResourceID)
         XCTAssertEqual(savedDrawingCount, 0)
         XCTAssertEqual(drawingData, initialDrawingData)
+    }
+
+    func testSaveIsThrottledUntilFlush() async throws {
+        let repository = EditorInMemoryNotesRepository(snapshot: .seed)
+        let drawingRepository = EditorInMemoryDrawingRepository()
+        let note = try XCTUnwrap(NoteLibrarySnapshot.seed.notes.first)
+        let page = try XCTUnwrap(NoteLibrarySnapshot.seed.firstPage(in: note.id))
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: drawingRepository
+        )
+
+        await viewModel.load()
+        viewModel.save(PKDrawing())
+
+        let saveCountBeforeFlush = await drawingRepository.savedDrawingCount()
+        XCTAssertEqual(saveCountBeforeFlush, 0)
+
+        await viewModel.flushPendingDrawing()
+
+        let saveCountAfterFlush = await drawingRepository.savedDrawingCount()
+        let savedData = try await drawingRepository.loadDrawingData(resourceID: page.drawingResourceID)
+        XCTAssertEqual(saveCountAfterFlush, 1)
+        XCTAssertNotNil(savedData)
+    }
+
+    func testConsecutiveDrawingChangesFlushOnce() async throws {
+        let repository = EditorInMemoryNotesRepository(snapshot: .seed)
+        let drawingRepository = EditorInMemoryDrawingRepository()
+        let note = try XCTUnwrap(NoteLibrarySnapshot.seed.notes.first)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: drawingRepository
+        )
+
+        await viewModel.load()
+        viewModel.save(PKDrawing())
+        viewModel.save(PKDrawing())
+        viewModel.save(PKDrawing())
+        await viewModel.flushPendingDrawing()
+
+        let saveCount = await drawingRepository.savedDrawingCount()
+        XCTAssertEqual(saveCount, 1)
     }
 }
 

@@ -10,11 +10,12 @@ struct SignotesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NoteEditorView(
-                viewModel: NoteEditorViewModel(
-                    notesRepository: FileSystemNotesRepository(rootURL: rootURL),
-                    drawingRepository: FileSystemDrawingRepository(rootURL: rootURL)
-                )
+            LibraryView(
+                viewModel: LibraryViewModel(
+                    notesRepository: FileSystemNotesRepository(rootURL: rootURL)
+                ),
+                notesRepository: FileSystemNotesRepository(rootURL: rootURL),
+                drawingRepository: FileSystemDrawingRepository(rootURL: rootURL)
             )
         }
     }

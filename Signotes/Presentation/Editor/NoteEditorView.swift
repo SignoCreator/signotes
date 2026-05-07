@@ -24,7 +24,7 @@ struct NoteEditorView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle("Lezione 1")
+            .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
             .task {
                 await viewModel.load()
@@ -50,4 +50,3 @@ struct NoteEditorView: View {
         )
     }
 }
-

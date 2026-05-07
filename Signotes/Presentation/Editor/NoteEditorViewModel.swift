@@ -3,16 +3,19 @@ import PencilKit
 
 @MainActor
 final class NoteEditorViewModel: ObservableObject {
+    @Published private(set) var title = "Nota"
     @Published private(set) var page: NotePage?
     @Published var drawing = PKDrawing()
     @Published var errorMessage: String?
 
     let tool: PKTool = PKInkingTool(.fountainPen, color: .black, width: 2.4)
 
+    private let noteID: UUID
     private let notesRepository: NotesRepository
     private let drawingRepository: DrawingRepository
 
-    init(notesRepository: NotesRepository, drawingRepository: DrawingRepository) {
+    init(noteID: UUID, notesRepository: NotesRepository, drawingRepository: DrawingRepository) {
+        self.noteID = noteID
         self.notesRepository = notesRepository
         self.drawingRepository = drawingRepository
     }
@@ -20,10 +23,11 @@ final class NoteEditorViewModel: ObservableObject {
     func load() async {
         do {
             let library = try await notesRepository.loadLibrary()
-            guard let firstPage = library.pages.sorted(by: { $0.index < $1.index }).first else {
+            guard let note = library.note(id: noteID), let firstPage = library.firstPage(in: noteID) else {
                 return
             }
 
+            title = note.title
             page = firstPage
 
             if let data = try await drawingRepository.loadDrawingData(resourceID: firstPage.drawingResourceID) {
@@ -54,4 +58,3 @@ final class NoteEditorViewModel: ObservableObject {
         }
     }
 }
-

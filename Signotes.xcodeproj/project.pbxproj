@@ -27,6 +27,8 @@
 		A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */; };
 		A10000000000000000000013 /* Presentation/Canvas/PageBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */; };
 		A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */; };
+		A10000000000000000000015 /* Presentation/Library/LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */; };
+		A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* Presentation/Library/LibraryView.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 /* End PBXBuildFile section */
@@ -63,6 +65,8 @@
 		B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PageCanvasView.swift; sourceTree = "<group>"; };
 		B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PageBackgroundView.swift; sourceTree = "<group>"; };
 		B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PencilCanvasRepresentable.swift; sourceTree = "<group>"; };
+		B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryViewModel.swift; sourceTree = "<group>"; };
+		B10000000000000000000017 /* Presentation/Library/LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryView.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
@@ -117,6 +121,8 @@
 				B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */,
 				B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */,
 				B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */,
+				B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */,
+				B10000000000000000000017 /* Presentation/Library/LibraryView.swift */,
 				B10000000000000000000002 /* Assets.xcassets */,
 			);
 			path = Signotes;
@@ -258,6 +264,8 @@
 				A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */,
 				A10000000000000000000013 /* Presentation/Canvas/PageBackgroundView.swift in Sources */,
 				A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */,
+				A10000000000000000000015 /* Presentation/Library/LibraryViewModel.swift in Sources */,
+				A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

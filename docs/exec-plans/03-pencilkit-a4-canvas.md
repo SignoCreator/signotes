@@ -61,11 +61,10 @@ Relevant references:
 
 - Updating SwiftUI bindings too aggressively can reset `PKCanvasView` during drawing.
 - PencilKit behavior must be judged on physical hardware, not simulator.
-- The initial page frame may need tuning for zoom and pan ergonomics.
+- The initial page frame may need tuning for zoom and pan ergonomics; detailed implementation is tracked in `05b-page-zoom-pan-optimization.md`.
 
 ## Definition of Done
 
 - A real PencilKit A4 editor exists.
 - Fountain pen is the default.
 - Persistence round trip works for one page.
-

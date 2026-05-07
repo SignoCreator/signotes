@@ -29,6 +29,12 @@
 		A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */; };
 		A10000000000000000000015 /* Presentation/Library/LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */; };
 		A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* Presentation/Library/LibraryView.swift */; };
+		A10000000000000000000017 /* Presentation/Library/LibraryDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */; };
+		A10000000000000000000018 /* Presentation/Library/LibraryItemEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* Presentation/Library/LibraryItemEditorSheet.swift */; };
+		A10000000000000000000019 /* Presentation/Library/LibraryDeletionRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001A /* Presentation/Library/LibraryDeletionRequest.swift */; };
+		A1000000000000000000001A /* Presentation/Library/LibraryTileViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001B /* Presentation/Library/LibraryTileViews.swift */; };
+		A1000000000000000000001B /* Presentation/Library/LibraryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */; };
+		A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
@@ -68,6 +74,12 @@
 		B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PencilCanvasRepresentable.swift; sourceTree = "<group>"; };
 		B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryViewModel.swift; sourceTree = "<group>"; };
 		B10000000000000000000017 /* Presentation/Library/LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryView.swift; sourceTree = "<group>"; };
+		B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryDesign.swift; sourceTree = "<group>"; };
+		B10000000000000000000019 /* Presentation/Library/LibraryItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryItemEditorSheet.swift; sourceTree = "<group>"; };
+		B1000000000000000000001A /* Presentation/Library/LibraryDeletionRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryDeletionRequest.swift; sourceTree = "<group>"; };
+		B1000000000000000000001B /* Presentation/Library/LibraryTileViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryTileViews.swift; sourceTree = "<group>"; };
+		B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryGridView.swift; sourceTree = "<group>"; };
+		B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryHeaderView.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
@@ -125,6 +137,12 @@
 				B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */,
 				B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */,
 				B10000000000000000000017 /* Presentation/Library/LibraryView.swift */,
+				B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */,
+				B10000000000000000000019 /* Presentation/Library/LibraryItemEditorSheet.swift */,
+				B1000000000000000000001A /* Presentation/Library/LibraryDeletionRequest.swift */,
+				B1000000000000000000001B /* Presentation/Library/LibraryTileViews.swift */,
+				B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */,
+				B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */,
 				B10000000000000000000002 /* Assets.xcassets */,
 			);
 			path = Signotes;
@@ -269,6 +287,12 @@
 				A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */,
 				A10000000000000000000015 /* Presentation/Library/LibraryViewModel.swift in Sources */,
 				A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */,
+				A10000000000000000000017 /* Presentation/Library/LibraryDesign.swift in Sources */,
+				A10000000000000000000018 /* Presentation/Library/LibraryItemEditorSheet.swift in Sources */,
+				A10000000000000000000019 /* Presentation/Library/LibraryDeletionRequest.swift in Sources */,
+				A1000000000000000000001A /* Presentation/Library/LibraryTileViews.swift in Sources */,
+				A1000000000000000000001B /* Presentation/Library/LibraryGridView.swift in Sources */,
+				A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

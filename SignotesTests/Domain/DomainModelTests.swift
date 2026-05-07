@@ -64,4 +64,69 @@ final class DomainModelTests: XCTestCase {
 
         XCTAssertTrue(library.containsFolderCycle())
     }
+
+    func testUpdateFolderNameAndColor() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Matematica", colorHex: "#F2C94C")
+
+        try library.updateFolder(id: folder.id, name: "Analisi", colorHex: "#4F8BFF")
+
+        XCTAssertEqual(library.folder(id: folder.id)?.name, "Analisi")
+        XCTAssertEqual(library.folder(id: folder.id)?.colorHex, "#4F8BFF")
+    }
+
+    func testUpdateNoteTitleColorAndTimestamp() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Matematica")
+        let note = try library.addNote(
+            title: "Lezione 1",
+            colorHex: "#F2C94C",
+            folderID: folder.id,
+            now: Date(timeIntervalSince1970: 10)
+        )
+
+        try library.updateNote(
+            id: note.id,
+            title: "Derivate",
+            colorHex: "#5AC8A8",
+            now: Date(timeIntervalSince1970: 20)
+        )
+
+        XCTAssertEqual(library.note(id: note.id)?.title, "Derivate")
+        XCTAssertEqual(library.note(id: note.id)?.colorHex, "#5AC8A8")
+        XCTAssertEqual(library.note(id: note.id)?.updatedAt, Date(timeIntervalSince1970: 20))
+    }
+
+    func testDeleteNoteRemovesPagesAndParentReference() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Matematica")
+        let note = try library.addNote(title: "Lezione 1", folderID: folder.id)
+        let page = try XCTUnwrap(library.firstPage(in: note.id))
+
+        let deletedResourceIDs = try library.deleteNote(id: note.id)
+
+        XCTAssertNil(library.note(id: note.id))
+        XCTAssertNil(library.firstPage(in: note.id))
+        XCTAssertFalse(library.folder(id: folder.id)?.noteIDs.contains(note.id) ?? true)
+        XCTAssertEqual(deletedResourceIDs, [page.drawingResourceID])
+    }
+
+    func testDeleteFolderTreeRemovesDescendantsNotesPagesAndParentReference() throws {
+        var library = NoteLibrarySnapshot()
+        let root = try library.addFolder(name: "Matematica")
+        let child = try library.addFolder(name: "Analisi", parentID: root.id)
+        let grandchild = try library.addFolder(name: "Serie", parentID: child.id)
+        let note = try library.addNote(title: "Lezione 1", folderID: grandchild.id)
+        let page = try XCTUnwrap(library.firstPage(in: note.id))
+
+        let deletedResourceIDs = try library.deleteFolderTree(id: child.id)
+
+        XCTAssertNotNil(library.folder(id: root.id))
+        XCTAssertNil(library.folder(id: child.id))
+        XCTAssertNil(library.folder(id: grandchild.id))
+        XCTAssertNil(library.note(id: note.id))
+        XCTAssertNil(library.firstPage(in: note.id))
+        XCTAssertFalse(library.folder(id: root.id)?.childFolderIDs.contains(child.id) ?? true)
+        XCTAssertEqual(deletedResourceIDs, [page.drawingResourceID])
+    }
 }

@@ -165,6 +165,75 @@ extension NoteLibrarySnapshot {
         return note
     }
 
+    mutating func updateFolder(id: UUID, name: String, colorHex: String?) throws {
+        guard let folderIndex = folders.firstIndex(where: { $0.id == id }) else {
+            throw LibraryMutationError.folderNotFound(id)
+        }
+
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        folders[folderIndex].name = trimmedName.isEmpty ? folders[folderIndex].name : trimmedName
+        folders[folderIndex].colorHex = colorHex
+    }
+
+    mutating func updateNote(id: UUID, title: String, colorHex: String?, now: Date = Date()) throws {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == id }) else {
+            throw LibraryMutationError.noteNotFound(id)
+        }
+
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        notes[noteIndex].title = trimmedTitle.isEmpty ? notes[noteIndex].title : trimmedTitle
+        notes[noteIndex].colorHex = colorHex
+        notes[noteIndex].updatedAt = now
+    }
+
+    mutating func deleteNote(id: UUID) throws -> [String] {
+        guard let note = note(id: id) else {
+            throw LibraryMutationError.noteNotFound(id)
+        }
+
+        let pageIDs = Set(note.pageIDs)
+        let drawingResourceIDs = pages
+            .filter { pageIDs.contains($0.id) }
+            .map(\.drawingResourceID)
+
+        pages.removeAll { pageIDs.contains($0.id) }
+        notes.removeAll { $0.id == id }
+
+        if let folderIndex = folders.firstIndex(where: { $0.id == note.folderID }) {
+            folders[folderIndex].noteIDs.removeAll { $0 == id }
+        }
+
+        return drawingResourceIDs
+    }
+
+    mutating func deleteFolderTree(id: UUID) throws -> [String] {
+        guard folder(id: id) != nil else {
+            throw LibraryMutationError.folderNotFound(id)
+        }
+
+        let folderIDs = descendantFolderIDs(including: id)
+        let noteIDs = Set(notes.filter { folderIDs.contains($0.folderID) }.map(\.id))
+        let pageIDs = Set(pages.filter { noteIDs.contains($0.noteID) }.map(\.id))
+        let drawingResourceIDs = pages
+            .filter { pageIDs.contains($0.id) }
+            .map(\.drawingResourceID)
+
+        folders.removeAll { folderIDs.contains($0.id) }
+        notes.removeAll { noteIDs.contains($0.id) }
+        pages.removeAll { pageIDs.contains($0.id) }
+
+        for index in folders.indices {
+            folders[index].childFolderIDs.removeAll { folderIDs.contains($0) }
+            folders[index].noteIDs.removeAll { noteIDs.contains($0) }
+        }
+
+        return drawingResourceIDs
+    }
+
+    func folderPathContains(folderID: UUID, candidateID: UUID) -> Bool {
+        folderPath(to: folderID).contains { $0.id == candidateID }
+    }
+
     func containsFolderCycle() -> Bool {
         let childrenByFolderID = Dictionary(uniqueKeysWithValues: folders.map { ($0.id, $0.childFolderIDs) })
         var visited = Set<UUID>()
@@ -190,10 +259,21 @@ extension NoteLibrarySnapshot {
 
         return folders.contains { visit($0.id) }
     }
+
+    private func descendantFolderIDs(including folderID: UUID) -> Set<UUID> {
+        guard let folder = folder(id: folderID) else {
+            return []
+        }
+
+        return folder.childFolderIDs.reduce(into: Set([folderID])) { result, childID in
+            result.formUnion(descendantFolderIDs(including: childID))
+        }
+    }
 }
 
 enum LibraryMutationError: Error, Equatable {
     case folderNotFound(UUID)
+    case noteNotFound(UUID)
 }
 
 extension NoteLibrarySnapshot {

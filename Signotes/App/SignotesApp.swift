@@ -12,7 +12,8 @@ struct SignotesApp: App {
         WindowGroup {
             LibraryView(
                 viewModel: LibraryViewModel(
-                    notesRepository: FileSystemNotesRepository(rootURL: rootURL)
+                    notesRepository: FileSystemNotesRepository(rootURL: rootURL),
+                    drawingRepository: FileSystemDrawingRepository(rootURL: rootURL)
                 ),
                 notesRepository: FileSystemNotesRepository(rootURL: rootURL),
                 drawingRepository: FileSystemDrawingRepository(rootURL: rootURL)

@@ -47,6 +47,21 @@ final class LocalPersistenceTests: XCTestCase {
         XCTAssertEqual(loaded, data)
     }
 
+    func testDeleteDrawingDataRemovesExistingFileAndIgnoresMissingFile() async throws {
+        let repository = FileSystemDrawingRepository(rootURL: rootURL)
+        let resourceID = "page-1.drawing"
+
+        try await repository.saveDrawingData(Data([0xCA, 0xFE]), resourceID: resourceID)
+        let savedData = try await repository.loadDrawingData(resourceID: resourceID)
+        XCTAssertNotNil(savedData)
+
+        try await repository.deleteDrawingData(resourceID: resourceID)
+        let deletedData = try await repository.loadDrawingData(resourceID: resourceID)
+        XCTAssertNil(deletedData)
+
+        try await repository.deleteDrawingData(resourceID: resourceID)
+    }
+
     func testCorruptLibraryThrowsAndIsNotOverwritten() async throws {
         try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
         let libraryURL = rootURL.appendingPathComponent("library.json")
@@ -65,4 +80,3 @@ final class LocalPersistenceTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: libraryURL), corruptData)
     }
 }
-

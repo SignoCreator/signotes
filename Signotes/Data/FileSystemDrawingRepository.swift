@@ -22,6 +22,16 @@ struct FileSystemDrawingRepository: DrawingRepository {
         try data.write(to: drawingURL(resourceID: resourceID), options: [.atomic])
     }
 
+    func deleteDrawingData(resourceID: String) async throws {
+        let url = drawingURL(resourceID: resourceID)
+
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return
+        }
+
+        try FileManager.default.removeItem(at: url)
+    }
+
     private func ensureDrawingsDirectoryExists() throws {
         try FileManager.default.createDirectory(
             at: drawingsURL,
@@ -33,4 +43,3 @@ struct FileSystemDrawingRepository: DrawingRepository {
         drawingsURL.appendingPathComponent(resourceID)
     }
 }
-

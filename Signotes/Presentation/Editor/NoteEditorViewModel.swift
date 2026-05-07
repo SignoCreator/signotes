@@ -8,7 +8,7 @@ final class NoteEditorViewModel: ObservableObject {
     @Published var drawing = PKDrawing()
     @Published var errorMessage: String?
 
-    let tool: PKTool = PKInkingTool(.fountainPen, color: .black, width: 2.4)
+    let tool: PKTool = NoteEditorViewModel.defaultWritingTool()
 
     private let noteID: UUID
     private let notesRepository: NotesRepository
@@ -18,6 +18,10 @@ final class NoteEditorViewModel: ObservableObject {
         self.noteID = noteID
         self.notesRepository = notesRepository
         self.drawingRepository = drawingRepository
+    }
+
+    static func defaultWritingTool() -> PKInkingTool {
+        PKInkingTool(.fountainPen, color: .black, width: 2.4)
     }
 
     func load() async {

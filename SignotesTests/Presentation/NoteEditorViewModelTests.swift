@@ -4,6 +4,14 @@ import XCTest
 
 @MainActor
 final class NoteEditorViewModelTests: XCTestCase {
+    func testDefaultWritingToolUsesBlackFountainPen() {
+        let tool = NoteEditorViewModel.defaultWritingTool()
+
+        XCTAssertEqual(tool.inkType, .fountainPen)
+        XCTAssertEqual(tool.color, .black)
+        XCTAssertEqual(tool.width, 2.4, accuracy: 0.000_001)
+    }
+
     func testUpdateTemplatePersistsMetadataWithoutSavingDrawingBlob() async throws {
         let repository = EditorInMemoryNotesRepository(snapshot: .seed)
         let drawingRepository = EditorInMemoryDrawingRepository()

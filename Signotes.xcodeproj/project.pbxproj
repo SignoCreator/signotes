@@ -9,16 +9,52 @@
 /* Begin PBXBuildFile section */
 		A10000000000000000000001 /* App/SignotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* App/SignotesApp.swift */; };
 		A10000000000000000000002 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* Assets.xcassets */; };
+		A10000000000000000000003 /* Domain/Models/NotebookFolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* Domain/Models/NotebookFolder.swift */; };
+		A10000000000000000000004 /* Domain/Models/NoteDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* Domain/Models/NoteDocument.swift */; };
+		A10000000000000000000005 /* Domain/Models/NoteLibrarySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* Domain/Models/NoteLibrarySnapshot.swift */; };
+		A10000000000000000000006 /* Domain/Models/NotePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* Domain/Models/NotePage.swift */; };
+		A10000000000000000000007 /* Domain/Models/PageFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* Domain/Models/PageFormat.swift */; };
+		A10000000000000000000008 /* Domain/Models/PageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* Domain/Models/PageTemplate.swift */; };
+		A10000000000000000000009 /* Domain/Models/DrawingToolKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* Domain/Models/DrawingToolKind.swift */; };
+		A1000000000000000000000A /* Domain/Models/DrawingToolPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* Domain/Models/DrawingToolPreset.swift */; };
+		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		H20000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E10000000000000000000002 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E10000000000000000000001;
+			remoteInfo = Signotes;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		B10000000000000000000001 /* App/SignotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/SignotesApp.swift; sourceTree = "<group>"; };
 		B10000000000000000000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B10000000000000000000003 /* Signotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Signotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000004 /* Domain/Models/NotebookFolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/NotebookFolder.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* Domain/Models/NoteDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/NoteDocument.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* Domain/Models/NoteLibrarySnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/NoteLibrarySnapshot.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* Domain/Models/NotePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/NotePage.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* Domain/Models/PageFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/PageFormat.swift; sourceTree = "<group>"; };
+		B10000000000000000000009 /* Domain/Models/PageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/PageTemplate.swift; sourceTree = "<group>"; };
+		B1000000000000000000000A /* Domain/Models/DrawingToolKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/DrawingToolKind.swift; sourceTree = "<group>"; };
+		B1000000000000000000000B /* Domain/Models/DrawingToolPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/DrawingToolPreset.swift; sourceTree = "<group>"; };
+		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C20000000000000000000002 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -32,6 +68,7 @@
 			isa = PBXGroup;
 			children = (
 				D10000000000000000000002 /* Signotes */,
+				D20000000000000000000001 /* SignotesTests */,
 				D10000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,6 +77,14 @@
 			isa = PBXGroup;
 			children = (
 				B10000000000000000000001 /* App/SignotesApp.swift */,
+				B10000000000000000000004 /* Domain/Models/NotebookFolder.swift */,
+				B10000000000000000000005 /* Domain/Models/NoteDocument.swift */,
+				B10000000000000000000006 /* Domain/Models/NoteLibrarySnapshot.swift */,
+				B10000000000000000000007 /* Domain/Models/NotePage.swift */,
+				B10000000000000000000008 /* Domain/Models/PageFormat.swift */,
+				B10000000000000000000009 /* Domain/Models/PageTemplate.swift */,
+				B1000000000000000000000A /* Domain/Models/DrawingToolKind.swift */,
+				B1000000000000000000000B /* Domain/Models/DrawingToolPreset.swift */,
 				B10000000000000000000002 /* Assets.xcassets */,
 			);
 			path = Signotes;
@@ -49,8 +94,17 @@
 			isa = PBXGroup;
 			children = (
 				B10000000000000000000003 /* Signotes.app */,
+				B20000000000000000000002 /* SignotesTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D20000000000000000000001 /* SignotesTests */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000001 /* DomainModelTests.swift */,
+			);
+			path = SignotesTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -73,6 +127,24 @@
 			productReference = B10000000000000000000003 /* Signotes.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E20000000000000000000001 /* SignotesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F20000000000000000000003 /* Build configuration list for PBXNativeTarget "SignotesTests" */;
+			buildPhases = (
+				C20000000000000000000001 /* Sources */,
+				C20000000000000000000002 /* Frameworks */,
+				C20000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				H20000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = SignotesTests;
+			productName = SignotesTests;
+			productReference = B20000000000000000000002 /* SignotesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -85,6 +157,10 @@
 				TargetAttributes = {
 					E10000000000000000000001 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					E20000000000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = E10000000000000000000001;
 					};
 				};
 			};
@@ -102,6 +178,7 @@
 			projectRoot = "";
 			targets = (
 				E10000000000000000000001 /* Signotes */,
+				E20000000000000000000001 /* SignotesTests */,
 			);
 		};
 /* End PBXProject section */
@@ -115,6 +192,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C20000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -123,10 +207,34 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000001 /* App/SignotesApp.swift in Sources */,
+				A10000000000000000000003 /* Domain/Models/NotebookFolder.swift in Sources */,
+				A10000000000000000000004 /* Domain/Models/NoteDocument.swift in Sources */,
+				A10000000000000000000005 /* Domain/Models/NoteLibrarySnapshot.swift in Sources */,
+				A10000000000000000000006 /* Domain/Models/NotePage.swift in Sources */,
+				A10000000000000000000007 /* Domain/Models/PageFormat.swift in Sources */,
+				A10000000000000000000008 /* Domain/Models/PageTemplate.swift in Sources */,
+				A10000000000000000000009 /* Domain/Models/DrawingToolKind.swift in Sources */,
+				A1000000000000000000000A /* Domain/Models/DrawingToolPreset.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C20000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20000000000000000000001 /* DomainModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		H20000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E10000000000000000000001 /* Signotes */;
+			targetProxy = H20000000000000000000002 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F10000000000000000000004 /* Debug */ = {
@@ -210,6 +318,52 @@
 			};
 			name = Release;
 		};
+		F20000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5M2RV7R4H2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.signocreator.signotesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Signotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Signotes";
+			};
+			name = Debug;
+		};
+		F20000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5M2RV7R4H2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.signocreator.signotesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Signotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Signotes";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -227,6 +381,15 @@
 			buildConfigurations = (
 				F10000000000000000000006 /* Debug */,
 				F10000000000000000000007 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F20000000000000000000003 /* Build configuration list for PBXNativeTarget "SignotesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F20000000000000000000001 /* Debug */,
+				F20000000000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

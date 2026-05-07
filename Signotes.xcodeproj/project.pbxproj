@@ -22,6 +22,11 @@
 		A1000000000000000000000D /* Data/LocalStorageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* Data/LocalStorageError.swift */; };
 		A1000000000000000000000E /* Data/FileSystemNotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* Data/FileSystemNotesRepository.swift */; };
 		A1000000000000000000000F /* Data/FileSystemDrawingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* Data/FileSystemDrawingRepository.swift */; };
+		A10000000000000000000010 /* Presentation/Editor/NoteEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* Presentation/Editor/NoteEditorViewModel.swift */; };
+		A10000000000000000000011 /* Presentation/Editor/NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* Presentation/Editor/NoteEditorView.swift */; };
+		A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */; };
+		A10000000000000000000013 /* Presentation/Canvas/PageBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */; };
+		A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 /* End PBXBuildFile section */
@@ -53,6 +58,11 @@
 		B1000000000000000000000E /* Data/LocalStorageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalStorageError.swift; sourceTree = "<group>"; };
 		B1000000000000000000000F /* Data/FileSystemNotesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/FileSystemNotesRepository.swift; sourceTree = "<group>"; };
 		B10000000000000000000010 /* Data/FileSystemDrawingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/FileSystemDrawingRepository.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* Presentation/Editor/NoteEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/NoteEditorViewModel.swift; sourceTree = "<group>"; };
+		B10000000000000000000012 /* Presentation/Editor/NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/NoteEditorView.swift; sourceTree = "<group>"; };
+		B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PageCanvasView.swift; sourceTree = "<group>"; };
+		B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PageBackgroundView.swift; sourceTree = "<group>"; };
+		B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PencilCanvasRepresentable.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
@@ -102,6 +112,11 @@
 				B1000000000000000000000E /* Data/LocalStorageError.swift */,
 				B1000000000000000000000F /* Data/FileSystemNotesRepository.swift */,
 				B10000000000000000000010 /* Data/FileSystemDrawingRepository.swift */,
+				B10000000000000000000011 /* Presentation/Editor/NoteEditorViewModel.swift */,
+				B10000000000000000000012 /* Presentation/Editor/NoteEditorView.swift */,
+				B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */,
+				B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */,
+				B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */,
 				B10000000000000000000002 /* Assets.xcassets */,
 			);
 			path = Signotes;
@@ -238,6 +253,11 @@
 				A1000000000000000000000D /* Data/LocalStorageError.swift in Sources */,
 				A1000000000000000000000E /* Data/FileSystemNotesRepository.swift in Sources */,
 				A1000000000000000000000F /* Data/FileSystemDrawingRepository.swift in Sources */,
+				A10000000000000000000010 /* Presentation/Editor/NoteEditorViewModel.swift in Sources */,
+				A10000000000000000000011 /* Presentation/Editor/NoteEditorView.swift in Sources */,
+				A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */,
+				A10000000000000000000013 /* Presentation/Canvas/PageBackgroundView.swift in Sources */,
+				A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -36,10 +36,13 @@
 		A1000000000000000000001B /* Presentation/Library/LibraryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */; };
 		A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */; };
 		A1000000000000000000001D /* Presentation/Library/LibraryDragItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */; };
+		A1000000000000000000001E /* Presentation/Canvas/CanvasViewportConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */; };
+		A1000000000000000000001F /* Presentation/Canvas/ZoomablePageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
 		A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* NoteEditorViewModelTests.swift */; };
+		A20000000000000000000005 /* CanvasViewportConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,11 +86,14 @@
 		B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryGridView.swift; sourceTree = "<group>"; };
 		B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryHeaderView.swift; sourceTree = "<group>"; };
 		B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryDragItem.swift; sourceTree = "<group>"; };
+		B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/CanvasViewportConfiguration.swift; sourceTree = "<group>"; };
+		B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/ZoomablePageScrollView.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000004 /* LibraryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/LibraryViewModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000005 /* NoteEditorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/NoteEditorViewModelTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/CanvasViewportConfigurationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +145,8 @@
 				B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */,
 				B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */,
 				B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */,
+				B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */,
+				B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */,
 				B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */,
 				B10000000000000000000017 /* Presentation/Library/LibraryView.swift */,
 				B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */,
@@ -169,6 +177,7 @@
 				B20000000000000000000003 /* LocalPersistenceTests.swift */,
 				B20000000000000000000004 /* LibraryViewModelTests.swift */,
 				B20000000000000000000005 /* NoteEditorViewModelTests.swift */,
+				B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */,
 			);
 			path = SignotesTests;
 			sourceTree = "<group>";
@@ -300,6 +309,8 @@
 				A1000000000000000000001B /* Presentation/Library/LibraryGridView.swift in Sources */,
 				A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */,
 				A1000000000000000000001D /* Presentation/Library/LibraryDragItem.swift in Sources */,
+				A1000000000000000000001E /* Presentation/Canvas/CanvasViewportConfiguration.swift in Sources */,
+				A1000000000000000000001F /* Presentation/Canvas/ZoomablePageScrollView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -311,6 +322,7 @@
 				A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */,
 				A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */,
 				A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */,
+				A20000000000000000000005 /* CanvasViewportConfigurationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

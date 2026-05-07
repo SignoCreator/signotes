@@ -2,6 +2,10 @@ import SwiftUI
 
 struct NoteEditorView: View {
     @StateObject var viewModel: NoteEditorViewModel
+    @State private var zoomScale: CGFloat = 1
+    @State private var resetZoomToken = 0
+
+    private let pageSize = CGSize(width: 794, height: 1123)
 
     var body: some View {
         ZStack {
@@ -9,15 +13,19 @@ struct NoteEditorView: View {
                 .ignoresSafeArea()
 
             if let page = viewModel.page {
-                ScrollView([.vertical, .horizontal]) {
+                ZoomablePageScrollView(
+                    pageSize: pageSize,
+                    zoomScale: $zoomScale,
+                    resetZoomToken: resetZoomToken
+                ) {
+                    // UIScrollView owns zoom/pan so PencilKit can keep native low-latency input.
                     PageCanvasView(
                         page: page,
                         drawing: $viewModel.drawing,
                         tool: viewModel.tool,
                         onDrawingChange: viewModel.save
                     )
-                    .frame(width: 794, height: 1123)
-                    .padding(32)
+                    .frame(width: pageSize.width, height: pageSize.height)
                 }
             } else {
                 ProgressView()
@@ -37,6 +45,16 @@ struct NoteEditorView: View {
                         }
                     } label: {
                         Label("Template", systemImage: "square.grid.3x3")
+                    }
+                }
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                if viewModel.page != nil {
+                    Button {
+                        resetZoomToken += 1
+                    } label: {
+                        Label("Adatta larghezza", systemImage: "arrow.up.left.and.down.right.magnifyingglass")
                     }
                 }
             }

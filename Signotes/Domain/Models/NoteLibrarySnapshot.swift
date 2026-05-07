@@ -230,6 +230,56 @@ extension NoteLibrarySnapshot {
         return drawingResourceIDs
     }
 
+    mutating func moveNote(id: UUID, toFolderID targetFolderID: UUID) throws {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == id }) else {
+            throw LibraryMutationError.noteNotFound(id)
+        }
+
+        guard let targetFolderIndex = folders.firstIndex(where: { $0.id == targetFolderID }) else {
+            throw LibraryMutationError.folderNotFound(targetFolderID)
+        }
+
+        let oldFolderID = notes[noteIndex].folderID
+        for index in folders.indices {
+            folders[index].noteIDs.removeAll { $0 == id }
+        }
+
+        notes[noteIndex].folderID = targetFolderID
+        notes[noteIndex].updatedAt = Date()
+
+        if oldFolderID != targetFolderID || !folders[targetFolderIndex].noteIDs.contains(id) {
+            folders[targetFolderIndex].noteIDs.append(id)
+        }
+    }
+
+    mutating func moveFolder(id: UUID, toFolderID targetFolderID: UUID) throws {
+        guard folder(id: id) != nil else {
+            throw LibraryMutationError.folderNotFound(id)
+        }
+
+        guard let targetFolderIndex = folders.firstIndex(where: { $0.id == targetFolderID }) else {
+            throw LibraryMutationError.folderNotFound(targetFolderID)
+        }
+
+        guard id != targetFolderID, !descendantFolderIDs(including: id).contains(targetFolderID) else {
+            throw LibraryMutationError.invalidFolderMove(id, targetFolderID)
+        }
+
+        removeFolderFromParents(id: id)
+
+        if !folders[targetFolderIndex].childFolderIDs.contains(id) {
+            folders[targetFolderIndex].childFolderIDs.append(id)
+        }
+    }
+
+    mutating func moveFolderToRoot(id: UUID) throws {
+        guard folder(id: id) != nil else {
+            throw LibraryMutationError.folderNotFound(id)
+        }
+
+        removeFolderFromParents(id: id)
+    }
+
     func folderPathContains(folderID: UUID, candidateID: UUID) -> Bool {
         folderPath(to: folderID).contains { $0.id == candidateID }
     }
@@ -269,11 +319,18 @@ extension NoteLibrarySnapshot {
             result.formUnion(descendantFolderIDs(including: childID))
         }
     }
+
+    private mutating func removeFolderFromParents(id: UUID) {
+        for index in folders.indices {
+            folders[index].childFolderIDs.removeAll { $0 == id }
+        }
+    }
 }
 
 enum LibraryMutationError: Error, Equatable {
     case folderNotFound(UUID)
     case noteNotFound(UUID)
+    case invalidFolderMove(UUID, UUID)
 }
 
 extension NoteLibrarySnapshot {

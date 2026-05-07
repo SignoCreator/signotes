@@ -141,6 +141,44 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.visibleChildFolders.isEmpty)
         XCTAssertTrue(viewModel.visibleNotes.isEmpty)
     }
+
+    func testMoveDraggedNotePersistsDestinationFolder() async throws {
+        var snapshot = NoteLibrarySnapshot()
+        let source = try snapshot.addFolder(name: "Matematica")
+        let destination = try snapshot.addFolder(name: "Fisica")
+        let note = try snapshot.addNote(title: "Lezione 1", folderID: source.id)
+        let repository = InMemoryNotesRepository(snapshot: snapshot)
+        let drawingRepository = InMemoryDrawingRepository()
+        let viewModel = LibraryViewModel(notesRepository: repository, drawingRepository: drawingRepository)
+
+        await viewModel.load()
+        await viewModel.moveDraggedItems([.note(note.id)], toFolderID: destination.id)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        XCTAssertFalse(savedSnapshot.folder(id: source.id)?.noteIDs.contains(note.id) ?? true)
+        XCTAssertTrue(savedSnapshot.folder(id: destination.id)?.noteIDs.contains(note.id) ?? false)
+        XCTAssertEqual(savedSnapshot.note(id: note.id)?.folderID, destination.id)
+    }
+
+    func testMoveDraggedFolderPersistsAndUpdatesCurrentRoot() async throws {
+        var snapshot = NoteLibrarySnapshot()
+        let sourceParent = try snapshot.addFolder(name: "Matematica")
+        let destinationParent = try snapshot.addFolder(name: "Fisica")
+        let child = try snapshot.addFolder(name: "Analisi", parentID: sourceParent.id)
+        let repository = InMemoryNotesRepository(snapshot: snapshot)
+        let drawingRepository = InMemoryDrawingRepository()
+        let viewModel = LibraryViewModel(notesRepository: repository, drawingRepository: drawingRepository)
+
+        await viewModel.load()
+        viewModel.selectFolder(child)
+        await viewModel.moveDraggedItems([.folder(child.id)], toFolderID: destinationParent.id)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        XCTAssertFalse(savedSnapshot.folder(id: sourceParent.id)?.childFolderIDs.contains(child.id) ?? true)
+        XCTAssertTrue(savedSnapshot.folder(id: destinationParent.id)?.childFolderIDs.contains(child.id) ?? false)
+        XCTAssertEqual(viewModel.currentFolderID, child.id)
+        XCTAssertEqual(viewModel.selectedRootFolderID, destinationParent.id)
+    }
 }
 
 private actor InMemoryNotesRepository: NotesRepository {

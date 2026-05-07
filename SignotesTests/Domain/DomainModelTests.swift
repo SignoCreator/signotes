@@ -129,4 +129,61 @@ final class DomainModelTests: XCTestCase {
         XCTAssertFalse(library.folder(id: root.id)?.childFolderIDs.contains(child.id) ?? true)
         XCTAssertEqual(deletedResourceIDs, [page.drawingResourceID])
     }
+
+    func testMoveNoteChangesParentFolderReference() throws {
+        var library = NoteLibrarySnapshot()
+        let source = try library.addFolder(name: "Matematica")
+        let destination = try library.addFolder(name: "Fisica")
+        let note = try library.addNote(title: "Lezione 1", folderID: source.id)
+
+        try library.moveNote(id: note.id, toFolderID: destination.id)
+
+        XCTAssertFalse(library.folder(id: source.id)?.noteIDs.contains(note.id) ?? true)
+        XCTAssertTrue(library.folder(id: destination.id)?.noteIDs.contains(note.id) ?? false)
+        XCTAssertEqual(library.note(id: note.id)?.folderID, destination.id)
+    }
+
+    func testMoveFolderChangesParentFolderReference() throws {
+        var library = NoteLibrarySnapshot()
+        let sourceParent = try library.addFolder(name: "Matematica")
+        let destinationParent = try library.addFolder(name: "Fisica")
+        let child = try library.addFolder(name: "Analisi", parentID: sourceParent.id)
+
+        try library.moveFolder(id: child.id, toFolderID: destinationParent.id)
+
+        XCTAssertFalse(library.folder(id: sourceParent.id)?.childFolderIDs.contains(child.id) ?? true)
+        XCTAssertTrue(library.folder(id: destinationParent.id)?.childFolderIDs.contains(child.id) ?? false)
+        XCTAssertEqual(library.parentFolder(of: child.id)?.id, destinationParent.id)
+    }
+
+    func testMoveFolderToRootRemovesParentReference() throws {
+        var library = NoteLibrarySnapshot()
+        let root = try library.addFolder(name: "Matematica")
+        let child = try library.addFolder(name: "Analisi", parentID: root.id)
+
+        try library.moveFolderToRoot(id: child.id)
+
+        XCTAssertNil(library.parentFolder(of: child.id))
+        XCTAssertEqual(Set(library.rootFolders.map(\.id)), Set([root.id, child.id]))
+    }
+
+    func testMoveFolderIntoItselfThrows() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Matematica")
+
+        XCTAssertThrowsError(try library.moveFolder(id: folder.id, toFolderID: folder.id)) { error in
+            XCTAssertEqual(error as? LibraryMutationError, .invalidFolderMove(folder.id, folder.id))
+        }
+    }
+
+    func testMoveFolderIntoDescendantThrows() throws {
+        var library = NoteLibrarySnapshot()
+        let root = try library.addFolder(name: "Matematica")
+        let child = try library.addFolder(name: "Analisi", parentID: root.id)
+        let grandchild = try library.addFolder(name: "Serie", parentID: child.id)
+
+        XCTAssertThrowsError(try library.moveFolder(id: root.id, toFolderID: grandchild.id)) { error in
+            XCTAssertEqual(error as? LibraryMutationError, .invalidFolderMove(root.id, grandchild.id))
+        }
+    }
 }

@@ -195,6 +195,38 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
+    func moveDraggedItems(_ items: [LibraryDragItem], toFolderID targetFolderID: UUID?) async {
+        do {
+            var updatedLibrary = library
+
+            for item in items {
+                switch item {
+                case let .folder(folderID):
+                    if let targetFolderID {
+                        try updatedLibrary.moveFolder(id: folderID, toFolderID: targetFolderID)
+                    } else {
+                        try updatedLibrary.moveFolderToRoot(id: folderID)
+                    }
+                case let .note(noteID):
+                    guard let targetFolderID else {
+                        continue
+                    }
+
+                    try updatedLibrary.moveNote(id: noteID, toFolderID: targetFolderID)
+                }
+            }
+
+            try await notesRepository.saveLibrary(updatedLibrary)
+            library = updatedLibrary
+
+            if let currentFolderID {
+                selectFolderID(currentFolderID)
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     private func selectFolderID(_ folderID: UUID?) {
         guard let folderID, let folder = library.folder(id: folderID) else {
             selectRootFolder(id: nil)

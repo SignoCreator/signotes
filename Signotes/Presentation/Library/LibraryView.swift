@@ -4,6 +4,7 @@ struct LibraryView: View {
     @StateObject var viewModel: LibraryViewModel
     @State private var editorMode: LibraryItemEditorMode?
     @State private var deletionRequest: LibraryDeletionRequest?
+    @State private var isRootDropTargeted = false
 
     let notesRepository: NotesRepository
     let drawingRepository: DrawingRepository
@@ -38,13 +39,30 @@ struct LibraryView: View {
                                 onEditFolder: { editorMode = .editFolder($0) },
                                 onDeleteFolder: { deletionRequest = .folder($0) },
                                 onEditNote: { editorMode = .editNote($0) },
-                                onDeleteNote: { deletionRequest = .note($0) }
+                                onDeleteNote: { deletionRequest = .note($0) },
+                                onDropItems: { items, targetFolderID in
+                                    moveDraggedItems(items, targetFolderID: targetFolderID)
+                                }
                             )
                         }
                     }
                     .padding(.horizontal, 28)
                     .padding(.vertical, 24)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .libraryRootDropTarget(
+                    isEnabled: viewModel.currentFolderID == nil,
+                    isTargeted: isRootDropTargeted
+                )
+                .dropDestination(for: LibraryDragItem.self) { items, _ in
+                    guard viewModel.currentFolderID == nil else {
+                        return false
+                    }
+
+                    moveDraggedItems(items, targetFolderID: nil)
+                    return true
+                } isTargeted: { isTargeted in
+                    isRootDropTargeted = isTargeted && viewModel.currentFolderID == nil
                 }
             }
             .navigationTitle("Signotes")
@@ -185,6 +203,26 @@ struct LibraryView: View {
             await viewModel.deleteFolder(id: folder.id)
         case let .note(note):
             await viewModel.deleteNote(id: note.id)
+        }
+    }
+
+    private func moveDraggedItems(_ items: [LibraryDragItem], targetFolderID: UUID?) {
+        Task {
+            await viewModel.moveDraggedItems(items, toFolderID: targetFolderID)
+        }
+    }
+}
+
+private extension View {
+    func libraryRootDropTarget(isEnabled: Bool, isTargeted: Bool) -> some View {
+        overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(
+                    isEnabled && isTargeted ? Color.accentColor.opacity(0.55) : Color.clear,
+                    style: StrokeStyle(lineWidth: 2, dash: [8, 6])
+                )
+                .padding(10)
+                .animation(.snappy(duration: 0.16), value: isTargeted)
         }
     }
 }

@@ -35,6 +35,7 @@
 		A1000000000000000000001A /* Presentation/Library/LibraryTileViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001B /* Presentation/Library/LibraryTileViews.swift */; };
 		A1000000000000000000001B /* Presentation/Library/LibraryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */; };
 		A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */; };
+		A1000000000000000000001D /* Presentation/Library/LibraryDragItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
@@ -80,6 +81,7 @@
 		B1000000000000000000001B /* Presentation/Library/LibraryTileViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryTileViews.swift; sourceTree = "<group>"; };
 		B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryGridView.swift; sourceTree = "<group>"; };
 		B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryHeaderView.swift; sourceTree = "<group>"; };
+		B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryDragItem.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 				B1000000000000000000001B /* Presentation/Library/LibraryTileViews.swift */,
 				B1000000000000000000001C /* Presentation/Library/LibraryGridView.swift */,
 				B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */,
+				B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */,
 				B10000000000000000000002 /* Assets.xcassets */,
 			);
 			path = Signotes;
@@ -293,6 +296,7 @@
 				A1000000000000000000001A /* Presentation/Library/LibraryTileViews.swift in Sources */,
 				A1000000000000000000001B /* Presentation/Library/LibraryGridView.swift in Sources */,
 				A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */,
+				A1000000000000000000001D /* Presentation/Library/LibraryDragItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

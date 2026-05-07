@@ -10,6 +10,9 @@ struct LibraryGridView: View {
     let onDeleteFolder: (NotebookFolder) -> Void
     let onEditNote: (NoteDocument) -> Void
     let onDeleteNote: (NoteDocument) -> Void
+    let onDropItems: ([LibraryDragItem], UUID?) -> Void
+
+    @State private var targetedFolderID: UUID?
 
     private let columns = [
         GridItem(.adaptive(minimum: 136, maximum: 176), spacing: 22, alignment: .top)
@@ -24,6 +27,14 @@ struct LibraryGridView: View {
                     color: Color(hex: folder.colorHex) ?? .yellow
                 ) {
                     onSelectFolder(folder)
+                }
+                .draggable(LibraryDragItem.folder(folder.id))
+                .libraryDropTarget(isTargeted: targetedFolderID == folder.id)
+                .dropDestination(for: LibraryDragItem.self) { items, _ in
+                    onDropItems(items, folder.id)
+                    return true
+                } isTargeted: { isTargeted in
+                    targetedFolderID = isTargeted ? folder.id : nil
                 }
                 .contextMenu {
                     Button {
@@ -56,6 +67,7 @@ struct LibraryGridView: View {
                         color: Color(hex: note.colorHex) ?? .blue
                     )
                 }
+                .draggable(LibraryDragItem.note(note.id))
                 .buttonStyle(LibraryTileButtonStyle())
                 .contextMenu {
                     Button {
@@ -71,6 +83,23 @@ struct LibraryGridView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+private extension View {
+    func libraryDropTarget(isTargeted: Bool) -> some View {
+        overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(
+                    isTargeted ? Color.accentColor.opacity(0.70) : Color.clear,
+                    lineWidth: 2
+                )
+                .background {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isTargeted ? Color.accentColor.opacity(0.10) : Color.clear)
+                }
+                .animation(.snappy(duration: 0.16), value: isTargeted)
         }
     }
 }

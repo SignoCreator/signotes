@@ -10,18 +10,11 @@ struct LibraryFolderTile: View {
         Button(action: action) {
             VStack(spacing: 10) {
                 LibraryTileArtworkFrame {
-                    ZStack(alignment: .bottomLeading) {
-                        Image(systemName: "folder.fill")
-                            .font(.system(size: 82, weight: .regular))
-                            .foregroundStyle(color)
-                            .symbolRenderingMode(.hierarchical)
-                            .frame(width: 104, height: 104)
-
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(.white.opacity(0.68))
-                            .frame(width: 58, height: 18)
-                            .offset(x: 44, y: -27)
-                    }
+                    Image(systemName: "folder.fill")
+                        .font(.system(size: 82, weight: .regular))
+                        .foregroundStyle(color)
+                        .symbolRenderingMode(.hierarchical)
+                        .frame(width: 104, height: 104)
                 }
 
                 LibraryTileText(title: title, subtitle: subtitle)

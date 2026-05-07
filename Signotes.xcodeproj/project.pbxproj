@@ -39,6 +39,7 @@
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
+		A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* NoteEditorViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +87,7 @@
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000004 /* LibraryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/LibraryViewModelTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000005 /* NoteEditorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/NoteEditorViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +168,7 @@
 				B20000000000000000000001 /* DomainModelTests.swift */,
 				B20000000000000000000003 /* LocalPersistenceTests.swift */,
 				B20000000000000000000004 /* LibraryViewModelTests.swift */,
+				B20000000000000000000005 /* NoteEditorViewModelTests.swift */,
 			);
 			path = SignotesTests;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 				A20000000000000000000001 /* DomainModelTests.swift in Sources */,
 				A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */,
 				A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */,
+				A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -186,6 +186,14 @@ extension NoteLibrarySnapshot {
         notes[noteIndex].updatedAt = now
     }
 
+    mutating func updatePageTemplate(pageID: UUID, template: PageTemplate) throws {
+        guard let pageIndex = pages.firstIndex(where: { $0.id == pageID }) else {
+            throw LibraryMutationError.pageNotFound(pageID)
+        }
+
+        pages[pageIndex].template = template
+    }
+
     mutating func deleteNote(id: UUID) throws -> [String] {
         guard let note = note(id: id) else {
             throw LibraryMutationError.noteNotFound(id)
@@ -330,6 +338,7 @@ extension NoteLibrarySnapshot {
 enum LibraryMutationError: Error, Equatable {
     case folderNotFound(UUID)
     case noteNotFound(UUID)
+    case pageNotFound(UUID)
     case invalidFolderMove(UUID, UUID)
 }
 

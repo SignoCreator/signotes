@@ -97,6 +97,20 @@ final class DomainModelTests: XCTestCase {
         XCTAssertEqual(library.note(id: note.id)?.updatedAt, Date(timeIntervalSince1970: 20))
     }
 
+    func testUpdatePageTemplateMutatesOnlyPageMetadata() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Matematica")
+        let note = try library.addNote(title: "Lezione 1", folderID: folder.id)
+        let page = try XCTUnwrap(library.firstPage(in: note.id))
+
+        try library.updatePageTemplate(pageID: page.id, template: .ruled)
+
+        let updatedPage = try XCTUnwrap(library.firstPage(in: note.id))
+        XCTAssertEqual(updatedPage.template, .ruled)
+        XCTAssertEqual(updatedPage.drawingResourceID, page.drawingResourceID)
+        XCTAssertEqual(updatedPage.format, page.format)
+    }
+
     func testDeleteNoteRemovesPagesAndParentReference() throws {
         var library = NoteLibrarySnapshot()
         let folder = try library.addFolder(name: "Matematica")

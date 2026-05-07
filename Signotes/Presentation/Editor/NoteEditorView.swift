@@ -25,6 +25,22 @@ struct NoteEditorView: View {
         }
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                if viewModel.page != nil {
+                    Menu {
+                        Picker("Template", selection: templateSelection) {
+                            ForEach(PageTemplate.allCases) { template in
+                                Label(template.displayName, systemImage: template.systemImageName)
+                                    .tag(template)
+                            }
+                        }
+                    } label: {
+                        Label("Template", systemImage: "square.grid.3x3")
+                    }
+                }
+            }
+        }
         .task {
             await viewModel.load()
         }
@@ -46,5 +62,44 @@ struct NoteEditorView: View {
                 }
             }
         )
+    }
+
+    private var templateSelection: Binding<PageTemplate> {
+        Binding(
+            get: { viewModel.page?.template ?? .blank },
+            set: { template in
+                Task {
+                    await viewModel.updateTemplate(template)
+                }
+            }
+        )
+    }
+}
+
+private extension PageTemplate {
+    var displayName: String {
+        switch self {
+        case .blank:
+            "Bianco"
+        case .ruled:
+            "Righe"
+        case .grid:
+            "Quadretti"
+        case .dotted:
+            "Puntinato"
+        }
+    }
+
+    var systemImageName: String {
+        switch self {
+        case .blank:
+            "doc"
+        case .ruled:
+            "list.bullet"
+        case .grid:
+            "square.grid.3x3"
+        case .dotted:
+            "circle.grid.3x3"
+        }
     }
 }

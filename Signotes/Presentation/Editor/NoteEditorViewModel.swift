@@ -57,4 +57,20 @@ final class NoteEditorViewModel: ObservableObject {
             }
         }
     }
+
+    func updateTemplate(_ template: PageTemplate) async {
+        guard let page else {
+            return
+        }
+
+        do {
+            var library = try await notesRepository.loadLibrary()
+            try library.updatePageTemplate(pageID: page.id, template: template)
+            try await notesRepository.saveLibrary(library)
+
+            self.page?.template = template
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 }

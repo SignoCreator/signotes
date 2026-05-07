@@ -199,7 +199,15 @@ final class LibraryViewModel: ObservableObject {
         do {
             var updatedLibrary = library
 
-            for item in items {
+            let movableItems = items.filter {
+                canDrop($0, toFolderID: targetFolderID, in: updatedLibrary)
+            }
+
+            guard !movableItems.isEmpty else {
+                return
+            }
+
+            for item in movableItems {
                 switch item {
                 case let .folder(folderID):
                     if let targetFolderID {
@@ -224,6 +232,12 @@ final class LibraryViewModel: ObservableObject {
             }
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    func canDropDraggedItems(_ items: [LibraryDragItem], toFolderID targetFolderID: UUID?) -> Bool {
+        !items.isEmpty && items.allSatisfy {
+            canDrop($0, toFolderID: targetFolderID, in: library)
         }
     }
 
@@ -255,6 +269,45 @@ final class LibraryViewModel: ObservableObject {
             try await deleteDrawings(resourceIDs: resourceIDs)
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func canDrop(
+        _ item: LibraryDragItem,
+        toFolderID targetFolderID: UUID?,
+        in library: NoteLibrarySnapshot
+    ) -> Bool {
+        switch item {
+        case let .folder(folderID):
+            guard library.folder(id: folderID) != nil else {
+                return false
+            }
+
+            guard let targetFolderID else {
+                return library.parentFolder(of: folderID) != nil
+            }
+
+            guard library.folder(id: targetFolderID) != nil else {
+                return false
+            }
+
+            guard folderID != targetFolderID else {
+                return false
+            }
+
+            guard library.parentFolder(of: folderID)?.id != targetFolderID else {
+                return false
+            }
+
+            return !library.folderPathContains(folderID: targetFolderID, candidateID: folderID)
+        case let .note(noteID):
+            guard let targetFolderID,
+                  let note = library.note(id: noteID),
+                  library.folder(id: targetFolderID) != nil else {
+                return false
+            }
+
+            return note.folderID != targetFolderID
         }
     }
 }

@@ -179,6 +179,40 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.currentFolderID, child.id)
         XCTAssertEqual(viewModel.selectedRootFolderID, destinationParent.id)
     }
+
+    func testCanDropDraggedFolderRejectsSelfAndDescendantTargets() async throws {
+        var snapshot = NoteLibrarySnapshot()
+        let root = try snapshot.addFolder(name: "Matematica")
+        let destination = try snapshot.addFolder(name: "Fisica")
+        let child = try snapshot.addFolder(name: "Analisi", parentID: root.id)
+        let grandchild = try snapshot.addFolder(name: "Serie", parentID: child.id)
+        let repository = InMemoryNotesRepository(snapshot: snapshot)
+        let drawingRepository = InMemoryDrawingRepository()
+        let viewModel = LibraryViewModel(notesRepository: repository, drawingRepository: drawingRepository)
+
+        await viewModel.load()
+
+        XCTAssertFalse(viewModel.canDropDraggedItems([.folder(child.id)], toFolderID: child.id))
+        XCTAssertFalse(viewModel.canDropDraggedItems([.folder(child.id)], toFolderID: grandchild.id))
+        XCTAssertFalse(viewModel.canDropDraggedItems([.folder(child.id)], toFolderID: root.id))
+        XCTAssertTrue(viewModel.canDropDraggedItems([.folder(child.id)], toFolderID: destination.id))
+    }
+
+    func testCanDropDraggedNoteRejectsRootAndSameFolder() async throws {
+        var snapshot = NoteLibrarySnapshot()
+        let source = try snapshot.addFolder(name: "Matematica")
+        let destination = try snapshot.addFolder(name: "Fisica")
+        let note = try snapshot.addNote(title: "Lezione 1", folderID: source.id)
+        let repository = InMemoryNotesRepository(snapshot: snapshot)
+        let drawingRepository = InMemoryDrawingRepository()
+        let viewModel = LibraryViewModel(notesRepository: repository, drawingRepository: drawingRepository)
+
+        await viewModel.load()
+
+        XCTAssertFalse(viewModel.canDropDraggedItems([.note(note.id)], toFolderID: nil))
+        XCTAssertFalse(viewModel.canDropDraggedItems([.note(note.id)], toFolderID: source.id))
+        XCTAssertTrue(viewModel.canDropDraggedItems([.note(note.id)], toFolderID: destination.id))
+    }
 }
 
 private actor InMemoryNotesRepository: NotesRepository {

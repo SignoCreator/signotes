@@ -4,7 +4,10 @@ struct LibraryView: View {
     @StateObject var viewModel: LibraryViewModel
     @State private var editorMode: LibraryItemEditorMode?
     @State private var deletionRequest: LibraryDeletionRequest?
+    @State private var activeDragItem: LibraryDragItem?
     @State private var isRootDropTargeted = false
+    @State private var isParentDropTargeted = false
+    @State private var isBackDropTargeted = false
 
     let notesRepository: NotesRepository
     let drawingRepository: DrawingRepository
@@ -21,6 +24,23 @@ struct LibraryView: View {
                             title: viewModel.currentFolder?.name ?? "Signotes",
                             path: pathTitle
                         )
+                        .libraryParentDropTarget(
+                            isEnabled: canDropActiveItem(toFolderID: parentDropTargetFolderID),
+                            isTargeted: isParentDropTargeted
+                        )
+                        .dropDestination(for: LibraryDragItem.self) { items, _ in
+                            guard viewModel.currentFolderID != nil,
+                                  canDropDraggedItems(items, toFolderID: parentDropTargetFolderID) else {
+                                clearDragState()
+                                return false
+                            }
+
+                            moveDraggedItems(items, targetFolderID: parentDropTargetFolderID)
+                            clearDragState()
+                            return true
+                        } isTargeted: { isTargeted in
+                            isParentDropTargeted = isTargeted && canDropActiveItem(toFolderID: parentDropTargetFolderID)
+                        }
 
                         if viewModel.visibleChildFolders.isEmpty && viewModel.visibleNotes.isEmpty {
                             ContentUnavailableView(
@@ -42,7 +62,9 @@ struct LibraryView: View {
                                 onDeleteNote: { deletionRequest = .note($0) },
                                 onDropItems: { items, targetFolderID in
                                     moveDraggedItems(items, targetFolderID: targetFolderID)
-                                }
+                                },
+                                canDropItems: canDropDraggedItems,
+                                activeDragItem: $activeDragItem
                             )
                         }
                     }
@@ -56,13 +78,20 @@ struct LibraryView: View {
                 )
                 .dropDestination(for: LibraryDragItem.self) { items, _ in
                     guard viewModel.currentFolderID == nil else {
+                        clearDragState()
+                        return false
+                    }
+
+                    guard canDropDraggedItems(items, toFolderID: nil) else {
+                        clearDragState()
                         return false
                     }
 
                     moveDraggedItems(items, targetFolderID: nil)
+                    clearDragState()
                     return true
                 } isTargeted: { isTargeted in
-                    isRootDropTargeted = isTargeted && viewModel.currentFolderID == nil
+                    isRootDropTargeted = isTargeted && canDropActiveItem(toFolderID: nil)
                 }
             }
             .navigationTitle("Signotes")
@@ -74,6 +103,20 @@ struct LibraryView: View {
                             viewModel.navigateToParentFolder()
                         } label: {
                             Image(systemName: "chevron.backward")
+                                .frame(width: 36, height: 36)
+                        }
+                        .libraryBackDropTarget(isTargeted: isBackDropTargeted)
+                        .dropDestination(for: LibraryDragItem.self) { items, _ in
+                            guard canDropDraggedItems(items, toFolderID: parentDropTargetFolderID) else {
+                                clearDragState()
+                                return false
+                            }
+
+                            moveDraggedItems(items, targetFolderID: parentDropTargetFolderID)
+                            clearDragState()
+                            return true
+                        } isTargeted: { isTargeted in
+                            isBackDropTargeted = isTargeted && canDropActiveItem(toFolderID: parentDropTargetFolderID)
                         }
                         .accessibilityLabel("Indietro")
                     }
@@ -158,6 +201,10 @@ struct LibraryView: View {
             : "Crea una lezione o una sottocartella."
     }
 
+    private var parentDropTargetFolderID: UUID? {
+        viewModel.parentFolder?.id
+    }
+
     private var deletionConfirmationBinding: Binding<Bool> {
         Binding(
             get: { deletionRequest != nil },
@@ -211,6 +258,25 @@ struct LibraryView: View {
             await viewModel.moveDraggedItems(items, toFolderID: targetFolderID)
         }
     }
+
+    private func canDropActiveItem(toFolderID targetFolderID: UUID?) -> Bool {
+        guard let activeDragItem else {
+            return false
+        }
+
+        return canDropDraggedItems([activeDragItem], toFolderID: targetFolderID)
+    }
+
+    private func canDropDraggedItems(_ items: [LibraryDragItem], toFolderID targetFolderID: UUID?) -> Bool {
+        viewModel.canDropDraggedItems(items, toFolderID: targetFolderID)
+    }
+
+    private func clearDragState() {
+        activeDragItem = nil
+        isRootDropTargeted = false
+        isParentDropTargeted = false
+        isBackDropTargeted = false
+    }
 }
 
 private extension View {
@@ -222,6 +288,29 @@ private extension View {
                     style: StrokeStyle(lineWidth: 2, dash: [8, 6])
                 )
                 .padding(10)
+                .animation(.snappy(duration: 0.16), value: isTargeted)
+        }
+    }
+
+    func libraryParentDropTarget(isEnabled: Bool, isTargeted: Bool) -> some View {
+        overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(
+                    isEnabled && isTargeted ? Color.accentColor.opacity(0.58) : Color.clear,
+                    style: StrokeStyle(lineWidth: 2, dash: [7, 5])
+                )
+                .background {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isEnabled && isTargeted ? Color.accentColor.opacity(0.08) : Color.clear)
+                }
+                .animation(.snappy(duration: 0.16), value: isTargeted)
+        }
+    }
+
+    func libraryBackDropTarget(isTargeted: Bool) -> some View {
+        background {
+            Circle()
+                .fill(isTargeted ? Color.accentColor.opacity(0.14) : Color.clear)
                 .animation(.snappy(duration: 0.16), value: isTargeted)
         }
     }

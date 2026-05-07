@@ -18,9 +18,7 @@ struct LibraryView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         LibraryHeaderView(
                             title: viewModel.currentFolder?.name ?? "Signotes",
-                            path: pathTitle,
-                            canNavigateBack: viewModel.currentFolderID != nil,
-                            onNavigateBack: viewModel.navigateToParentFolder
+                            path: pathTitle
                         )
 
                         if viewModel.visibleChildFolders.isEmpty && viewModel.visibleNotes.isEmpty {
@@ -52,6 +50,17 @@ struct LibraryView: View {
             .navigationTitle("Signotes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if viewModel.currentFolderID != nil {
+                        Button {
+                            viewModel.navigateToParentFolder()
+                        } label: {
+                            Image(systemName: "chevron.backward")
+                        }
+                        .accessibilityLabel("Indietro")
+                    }
+                }
+
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button {
                         editorMode = .createFolder

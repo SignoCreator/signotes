@@ -9,19 +9,20 @@ struct LibraryFolderTile: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 10) {
-                ZStack(alignment: .bottomLeading) {
-                    Image(systemName: "folder.fill")
-                        .font(.system(size: 82, weight: .regular))
-                        .foregroundStyle(color)
-                        .symbolRenderingMode(.hierarchical)
-                        .frame(height: 94)
+                LibraryTileArtworkFrame {
+                    ZStack(alignment: .bottomLeading) {
+                        Image(systemName: "folder.fill")
+                            .font(.system(size: 82, weight: .regular))
+                            .foregroundStyle(color)
+                            .symbolRenderingMode(.hierarchical)
+                            .frame(width: 104, height: 104)
 
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(.white.opacity(0.68))
-                        .frame(width: 58, height: 18)
-                        .offset(x: 30, y: -22)
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(.white.opacity(0.68))
+                            .frame(width: 58, height: 18)
+                            .offset(x: 44, y: -27)
+                    }
                 }
-                .frame(maxWidth: .infinity)
 
                 LibraryTileText(title: title, subtitle: subtitle)
             }
@@ -40,12 +41,24 @@ struct LibraryNoteTile: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            NotePreviewThumbnail(color: color)
+            LibraryTileArtworkFrame {
+                NotePreviewThumbnail(color: color)
+            }
             LibraryTileText(title: title, subtitle: subtitle)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, minHeight: 158, alignment: .top)
+    }
+}
+
+private struct LibraryTileArtworkFrame<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        content
+            .frame(width: 104, height: 104, alignment: .center)
+            .frame(maxWidth: .infinity)
     }
 }
 

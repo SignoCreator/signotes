@@ -15,6 +15,9 @@ The library grid is now the primary navigation surface. Creation customization e
 - Delete folders recursively after explicit confirmation.
 - Do not add drag/drop, duplicate, search, undo, trash/recycle bin, or inline rename.
 - Existing libraries with optional color metadata must keep loading.
+- Maintain strict file-level responsibility boundaries. A file must have one primary reason to change.
+- Avoid "god views" and hidden cross-layer behavior. SwiftUI views compose UI and dispatch intents; ViewModels coordinate use cases and repositories; Domain owns pure metadata mutations; Data owns filesystem details.
+- New UI helpers must be named by responsibility, not by implementation accident. Shared visual utilities go in a dedicated design/helper file only when used by more than one component.
 
 ## Tasks
 
@@ -23,6 +26,8 @@ The library grid is now the primary navigation surface. Creation customization e
    - grid/tile rendering
    - create/update sheet
    - shared visual helpers
+   - destructive-action request modeling
+   - navigation/header rendering
 2. Add Domain helpers:
    - update folder name/color
    - update note title/color
@@ -41,6 +46,11 @@ The library grid is now the primary navigation surface. Creation customization e
 ## Acceptance Criteria
 
 - `LibraryView` is a composition/container, not the owner of all UI detail.
+- `LibraryView` does not contain tile rendering, editor form internals, color parsing, or deletion request copy.
+- `LibraryGridView` owns grid composition only; individual tile visuals stay in tile views.
+- `LibraryItemEditorSheet` owns create/update form state only; it does not mutate Domain or repositories.
+- `LibraryViewModel` contains orchestration and navigation state only; pure tree mutations remain in `NoteLibrarySnapshot`.
+- `DrawingRepository` is the only abstraction used by Presentation to remove drawing blobs.
 - Users can update folder name/color.
 - Users can update note title/color.
 - Users can delete notes.
@@ -71,3 +81,4 @@ The library grid is now the primary navigation surface. Creation customization e
 - Library item management is implemented and pushed.
 - Tests pass on simulator.
 - Build, install, and launch pass on physical iPad.
+- A reviewer can identify each library file's responsibility without reading unrelated files.

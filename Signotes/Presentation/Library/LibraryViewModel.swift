@@ -64,9 +64,6 @@ final class LibraryViewModel: ObservableObject {
     func load() async {
         do {
             library = try await notesRepository.loadLibrary()
-            if selectedRootFolderID == nil {
-                selectInitialRootFolder()
-            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -83,11 +80,16 @@ final class LibraryViewModel: ObservableObject {
     }
 
     func navigateToParentFolder() {
-        guard let parentFolder else {
+        guard let currentFolderID else {
             return
         }
 
-        selectFolder(parentFolder)
+        if let parentFolder = library.parentFolder(of: currentFolderID) {
+            selectFolder(parentFolder)
+        } else {
+            selectedRootFolderID = nil
+            self.currentFolderID = nil
+        }
     }
 
     func createRootFolder() async {
@@ -134,11 +136,5 @@ final class LibraryViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
-    }
-
-    private func selectInitialRootFolder() {
-        let firstRootID = library.rootFolders.first?.id
-        selectedRootFolderID = firstRootID
-        currentFolderID = firstRootID
     }
 }

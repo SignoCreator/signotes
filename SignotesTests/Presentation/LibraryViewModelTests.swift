@@ -8,7 +8,7 @@ final class LibraryViewModelTests: XCTestCase {
         let viewModel = LibraryViewModel(notesRepository: repository)
 
         await viewModel.load()
-        let originalRootID = try XCTUnwrap(viewModel.selectedRootFolderID)
+        let originalRootID = try XCTUnwrap(viewModel.library.rootFolders.first?.id)
 
         await viewModel.createRootFolder()
 
@@ -20,12 +20,26 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertFalse(originalRoot.childFolderIDs.contains(newRootID))
     }
 
+    func testLoadStartsAtRootGrid() async throws {
+        let repository = InMemoryNotesRepository(snapshot: .seed)
+        let viewModel = LibraryViewModel(notesRepository: repository)
+
+        await viewModel.load()
+
+        XCTAssertNil(viewModel.selectedRootFolderID)
+        XCTAssertNil(viewModel.currentFolderID)
+        XCTAssertEqual(viewModel.visibleChildFolders.map(\.name), ["Matematica"])
+        XCTAssertTrue(viewModel.visibleNotes.isEmpty)
+    }
+
     func testCreateChildFolderNestsInsideCurrentFolderAndCanNavigateBack() async throws {
         let repository = InMemoryNotesRepository(snapshot: .seed)
         let viewModel = LibraryViewModel(notesRepository: repository)
 
         await viewModel.load()
-        let rootID = try XCTUnwrap(viewModel.selectedRootFolderID)
+        let root = try XCTUnwrap(viewModel.library.rootFolders.first)
+        viewModel.selectFolder(root)
+        let rootID = root.id
 
         await viewModel.createChildFolder()
 
@@ -38,6 +52,11 @@ final class LibraryViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.currentFolderID, rootID)
         XCTAssertEqual(viewModel.selectedRootFolderID, rootID)
+
+        viewModel.navigateToParentFolder()
+
+        XCTAssertNil(viewModel.currentFolderID)
+        XCTAssertNil(viewModel.selectedRootFolderID)
     }
 }
 

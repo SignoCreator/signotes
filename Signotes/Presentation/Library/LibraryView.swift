@@ -6,59 +6,98 @@ struct LibraryView: View {
     let notesRepository: NotesRepository
     let drawingRepository: DrawingRepository
 
+    private let columns = [
+        GridItem(.adaptive(minimum: 150, maximum: 190), spacing: 18, alignment: .top)
+    ]
+
     var body: some View {
-        NavigationSplitView {
-            List(selection: selectedRootFolderBinding) {
-                Section("Cartelle") {
-                    ForEach(viewModel.rootFolders) { folder in
-                        Label(folder.name, systemImage: "folder")
-                            .tag(folder.id)
+        NavigationStack {
+            ZStack {
+                Color(uiColor: .systemGroupedBackground)
+                    .ignoresSafeArea()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        LibraryHeaderView(
+                            title: viewModel.currentFolder?.name ?? "Signotes",
+                            path: pathTitle,
+                            canNavigateBack: viewModel.currentFolderID != nil,
+                            onNavigateBack: viewModel.navigateToParentFolder
+                        )
+
+                        if viewModel.visibleChildFolders.isEmpty && viewModel.visibleNotes.isEmpty {
+                            ContentUnavailableView(
+                                "Nessun elemento",
+                                systemImage: "folder",
+                                description: Text(emptyStateDescription)
+                            )
+                            .frame(maxWidth: .infinity, minHeight: 360)
+                        } else {
+                            LazyVGrid(columns: columns, alignment: .leading, spacing: 18) {
+                                ForEach(viewModel.visibleChildFolders) { folder in
+                                    LibraryItemTile(
+                                        title: folder.name,
+                                        subtitle: "Cartella",
+                                        systemImage: "folder.fill",
+                                        color: .yellow
+                                    ) {
+                                        viewModel.selectFolder(folder)
+                                    }
+                                }
+
+                                ForEach(viewModel.visibleNotes) { note in
+                                    NavigationLink {
+                                        NoteEditorView(
+                                            viewModel: NoteEditorViewModel(
+                                                noteID: note.id,
+                                                notesRepository: notesRepository,
+                                                drawingRepository: drawingRepository
+                                            )
+                                        )
+                                    } label: {
+                                        LibraryItemTileLabel(
+                                            title: note.title,
+                                            subtitle: "\(note.pageIDs.count) pagina",
+                                            systemImage: "doc.text.fill",
+                                            color: .blue
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
                     }
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 24)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .navigationTitle("Signotes")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItemGroup(placement: .primaryAction) {
                     Button {
                         Task {
-                            await viewModel.createRootFolder()
+                            if viewModel.currentFolderID == nil {
+                                await viewModel.createRootFolder()
+                            } else {
+                                await viewModel.createChildFolder()
+                            }
                         }
                     } label: {
                         Label("Nuova cartella", systemImage: "folder.badge.plus")
                     }
+
+                    Button {
+                        Task {
+                            await viewModel.createNote()
+                        }
+                    } label: {
+                        Label("Nuova lezione", systemImage: "doc.badge.plus")
+                    }
+                    .disabled(viewModel.currentFolderID == nil)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-        } content: {
-            LibraryFolderContentView(
-                folder: viewModel.currentFolder,
-                parentFolder: viewModel.parentFolder,
-                path: viewModel.currentPath,
-                childFolders: viewModel.visibleChildFolders,
-                notes: viewModel.visibleNotes,
-                notesRepository: notesRepository,
-                drawingRepository: drawingRepository,
-                onSelectFolder: viewModel.selectFolder,
-                onNavigateBack: viewModel.navigateToParentFolder,
-                onCreateFolder: {
-                    Task {
-                        await viewModel.createChildFolder()
-                    }
-                },
-                onCreateNote: {
-                    Task {
-                        await viewModel.createNote()
-                    }
-                }
-            )
-        } detail: {
-            ContentUnavailableView(
-                "Seleziona una lezione",
-                systemImage: "square.and.pencil",
-                description: Text("Apri una nota dalla libreria.")
-            )
-            .navigationTitle("Editor")
-            .navigationBarTitleDisplayMode(.inline)
         }
         .task {
             await viewModel.load()
@@ -72,6 +111,21 @@ struct LibraryView: View {
         }
     }
 
+    private var pathTitle: String {
+        let names = viewModel.currentPath.map(\.name)
+        guard !names.isEmpty else {
+            return "Root"
+        }
+
+        return (["Signotes"] + names).joined(separator: " / ")
+    }
+
+    private var emptyStateDescription: String {
+        viewModel.currentFolderID == nil
+            ? "Crea una cartella per iniziare."
+            : "Crea una lezione o una sottocartella."
+    }
+
     private var errorBinding: Binding<Bool> {
         Binding(
             get: { viewModel.errorMessage != nil },
@@ -82,115 +136,104 @@ struct LibraryView: View {
             }
         )
     }
+}
 
-    private var selectedRootFolderBinding: Binding<UUID?> {
-        Binding(
-            get: { viewModel.selectedRootFolderID },
-            set: { viewModel.selectRootFolder(id: $0) }
-        )
+private struct LibraryHeaderView: View {
+    let title: String
+    let path: String
+    let canNavigateBack: Bool
+    let onNavigateBack: () -> Void
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            if canNavigateBack {
+                Button {
+                    onNavigateBack()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.headline)
+                        .frame(width: 38, height: 38)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityLabel("Indietro")
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.largeTitle.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.65)
+
+                Text(path)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+
+            Spacer(minLength: 0)
+        }
     }
 }
 
-private struct LibraryFolderContentView: View {
-    let folder: NotebookFolder?
-    let parentFolder: NotebookFolder?
-    let path: [NotebookFolder]
-    let childFolders: [NotebookFolder]
-    let notes: [NoteDocument]
-    let notesRepository: NotesRepository
-    let drawingRepository: DrawingRepository
-    let onSelectFolder: (NotebookFolder) -> Void
-    let onNavigateBack: () -> Void
-    let onCreateFolder: () -> Void
-    let onCreateNote: () -> Void
+private struct LibraryItemTile: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let color: Color
+    let action: () -> Void
 
     var body: some View {
-        List {
-            if let folder {
-                Section {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(folder.name)
-                            .font(.title2.weight(.semibold))
-                        Text(path.map(\.name).joined(separator: " / "))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    .padding(.vertical, 6)
-                }
-            }
+        Button(action: action) {
+            LibraryItemTileLabel(
+                title: title,
+                subtitle: subtitle,
+                systemImage: systemImage,
+                color: color
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
 
-            if childFolders.isEmpty && notes.isEmpty {
-                ContentUnavailableView(
-                    "Cartella vuota",
-                    systemImage: "folder",
-                    description: Text("Crea una lezione o una sottocartella.")
-                )
-                .listRowBackground(Color.clear)
-            }
+private struct LibraryItemTileLabel: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let color: Color
 
-            if !childFolders.isEmpty {
-                Section("Sottocartelle") {
-                    ForEach(childFolders) { folder in
-                        Button {
-                            onSelectFolder(folder)
-                        } label: {
-                            Label(folder.name, systemImage: "folder")
-                        }
-                    }
-                }
-            }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(color.opacity(0.14))
 
-            if !notes.isEmpty {
-                Section("Lezioni") {
-                    ForEach(notes) { note in
-                        NavigationLink {
-                            NoteEditorView(
-                                viewModel: NoteEditorViewModel(
-                                    noteID: note.id,
-                                    notesRepository: notesRepository,
-                                    drawingRepository: drawingRepository
-                                )
-                            )
-                        } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(note.title)
-                                    .font(.headline)
-                                Text("\(note.pageIDs.count) pagina")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                }
+                Image(systemName: systemImage)
+                    .font(.system(size: 48, weight: .semibold))
+                    .foregroundStyle(color)
+            }
+            .frame(height: 104)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
         }
-        .navigationTitle("Cartella")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if parentFolder != nil {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        onNavigateBack()
-                    } label: {
-                        Label("Indietro", systemImage: "chevron.left")
-                    }
-                }
-            }
-
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    onCreateFolder()
-                } label: {
-                    Label("Nuova sottocartella", systemImage: "folder.badge.plus")
-                }
-
-                Button {
-                    onCreateNote()
-                } label: {
-                    Label("Nuova lezione", systemImage: "doc.badge.plus")
-                }
-            }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 174, alignment: .topLeading)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(uiColor: .separator).opacity(0.24), lineWidth: 1)
         }
     }
 }

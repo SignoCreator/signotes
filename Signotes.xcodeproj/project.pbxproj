@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10000000000000000000001 /* SignotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* SignotesApp.swift */; };
+		A10000000000000000000001 /* App/SignotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* App/SignotesApp.swift */; };
 		A10000000000000000000002 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B10000000000000000000001 /* SignotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/SignotesApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000001 /* App/SignotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/SignotesApp.swift; sourceTree = "<group>"; };
 		B10000000000000000000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B10000000000000000000003 /* Signotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Signotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -39,7 +39,7 @@
 		D10000000000000000000002 /* Signotes */ = {
 			isa = PBXGroup;
 			children = (
-				B10000000000000000000001 /* SignotesApp.swift */,
+				B10000000000000000000001 /* App/SignotesApp.swift */,
 				B10000000000000000000002 /* Assets.xcassets */,
 			);
 			path = Signotes;
@@ -122,7 +122,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A10000000000000000000001 /* SignotesApp.swift in Sources */,
+				A10000000000000000000001 /* App/SignotesApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,7 +168,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 5M2RV7R4H2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Signotes;
@@ -192,7 +192,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 5M2RV7R4H2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Signotes;
@@ -235,4 +235,3 @@
 	};
 	rootObject = E10000000000000000000002 /* Project object */;
 }
-

@@ -28,11 +28,12 @@ final class NoteEditorViewModel: ObservableObject {
             }
 
             title = note.title
-            page = firstPage
 
             if let data = try await drawingRepository.loadDrawingData(resourceID: firstPage.drawingResourceID) {
                 drawing = try PKDrawing(data: data)
             }
+
+            page = firstPage
         } catch {
             errorMessage = error.localizedDescription
         }

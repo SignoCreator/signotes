@@ -16,7 +16,8 @@ struct NoteEditorView: View {
                 ZoomablePageScrollView(
                     pageSize: pageSize,
                     zoomScale: $zoomScale,
-                    resetZoomToken: resetZoomToken
+                    resetZoomToken: resetZoomToken,
+                    contentUpdateID: PageCanvasContentID(pageID: page.id, template: page.template)
                 ) {
                     // UIScrollView owns zoom/pan so PencilKit can keep native low-latency input.
                     PageCanvasView(
@@ -92,6 +93,11 @@ struct NoteEditorView: View {
             }
         )
     }
+}
+
+private struct PageCanvasContentID: Hashable {
+    let pageID: UUID
+    let template: PageTemplate
 }
 
 private extension PageTemplate {

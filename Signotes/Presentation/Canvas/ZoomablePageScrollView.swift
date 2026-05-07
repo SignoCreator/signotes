@@ -5,17 +5,20 @@ struct ZoomablePageScrollView<Content: View>: UIViewRepresentable {
     let pageSize: CGSize
     @Binding var zoomScale: CGFloat
     let resetZoomToken: Int
+    let contentUpdateID: AnyHashable
     let content: Content
 
     init(
         pageSize: CGSize,
         zoomScale: Binding<CGFloat>,
         resetZoomToken: Int,
+        contentUpdateID: AnyHashable,
         @ViewBuilder content: () -> Content
     ) {
         self.pageSize = pageSize
         self._zoomScale = zoomScale
         self.resetZoomToken = resetZoomToken
+        self.contentUpdateID = contentUpdateID
         self.content = content()
     }
 
@@ -37,6 +40,7 @@ struct ZoomablePageScrollView<Content: View>: UIViewRepresentable {
         scrollView.addSubview(hostingController.view)
         context.coordinator.hostingController = hostingController
         context.coordinator.hostedView = hostingController.view
+        context.coordinator.lastContentUpdateID = contentUpdateID
         context.coordinator.widthConstraint = hostingController.view.widthAnchor.constraint(equalToConstant: pageSize.width)
         context.coordinator.heightConstraint = hostingController.view.heightAnchor.constraint(equalToConstant: pageSize.height)
 
@@ -62,7 +66,7 @@ struct ZoomablePageScrollView<Content: View>: UIViewRepresentable {
 
     func updateUIView(_ scrollView: PageZoomScrollView, context: Context) {
         context.coordinator.parent = self
-        context.coordinator.hostingController?.rootView = content
+        context.coordinator.updateContentIfNeeded(content, contentUpdateID: contentUpdateID)
         context.coordinator.widthConstraint?.constant = pageSize.width
         context.coordinator.heightConstraint?.constant = pageSize.height
         context.coordinator.configureZoomIfNeeded(in: scrollView, pageSize: pageSize, resetZoomToken: resetZoomToken)
@@ -78,6 +82,7 @@ struct ZoomablePageScrollView<Content: View>: UIViewRepresentable {
         weak var hostedView: UIView?
         var widthConstraint: NSLayoutConstraint?
         var heightConstraint: NSLayoutConstraint?
+        var lastContentUpdateID: AnyHashable?
         private var lastBoundsSize: CGSize = .zero
         private var lastResetZoomToken = 0
         private var hasConfiguredInitialZoom = false
@@ -93,6 +98,15 @@ struct ZoomablePageScrollView<Content: View>: UIViewRepresentable {
         func scrollViewDidZoom(_ scrollView: UIScrollView) {
             centerContent(in: scrollView)
             parent.zoomScale = scrollView.zoomScale
+        }
+
+        func updateContentIfNeeded(_ content: Content, contentUpdateID: AnyHashable) {
+            guard lastContentUpdateID != contentUpdateID else {
+                return
+            }
+
+            hostingController?.rootView = content
+            lastContentUpdateID = contentUpdateID
         }
 
         func configureZoomIfNeeded(in scrollView: UIScrollView, pageSize: CGSize, resetZoomToken: Int) {

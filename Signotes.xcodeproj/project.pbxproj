@@ -17,7 +17,13 @@
 		A10000000000000000000008 /* Domain/Models/PageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* Domain/Models/PageTemplate.swift */; };
 		A10000000000000000000009 /* Domain/Models/DrawingToolKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* Domain/Models/DrawingToolKind.swift */; };
 		A1000000000000000000000A /* Domain/Models/DrawingToolPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* Domain/Models/DrawingToolPreset.swift */; };
+		A1000000000000000000000B /* Domain/Repositories/NotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* Domain/Repositories/NotesRepository.swift */; };
+		A1000000000000000000000C /* Domain/Repositories/DrawingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* Domain/Repositories/DrawingRepository.swift */; };
+		A1000000000000000000000D /* Data/LocalStorageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* Data/LocalStorageError.swift */; };
+		A1000000000000000000000E /* Data/FileSystemNotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* Data/FileSystemNotesRepository.swift */; };
+		A1000000000000000000000F /* Data/FileSystemDrawingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* Data/FileSystemDrawingRepository.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
+		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,8 +48,14 @@
 		B10000000000000000000009 /* Domain/Models/PageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/PageTemplate.swift; sourceTree = "<group>"; };
 		B1000000000000000000000A /* Domain/Models/DrawingToolKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/DrawingToolKind.swift; sourceTree = "<group>"; };
 		B1000000000000000000000B /* Domain/Models/DrawingToolPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/DrawingToolPreset.swift; sourceTree = "<group>"; };
+		B1000000000000000000000C /* Domain/Repositories/NotesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Repositories/NotesRepository.swift; sourceTree = "<group>"; };
+		B1000000000000000000000D /* Domain/Repositories/DrawingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Repositories/DrawingRepository.swift; sourceTree = "<group>"; };
+		B1000000000000000000000E /* Data/LocalStorageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalStorageError.swift; sourceTree = "<group>"; };
+		B1000000000000000000000F /* Data/FileSystemNotesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/FileSystemNotesRepository.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* Data/FileSystemDrawingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/FileSystemDrawingRepository.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +97,11 @@
 				B10000000000000000000009 /* Domain/Models/PageTemplate.swift */,
 				B1000000000000000000000A /* Domain/Models/DrawingToolKind.swift */,
 				B1000000000000000000000B /* Domain/Models/DrawingToolPreset.swift */,
+				B1000000000000000000000C /* Domain/Repositories/NotesRepository.swift */,
+				B1000000000000000000000D /* Domain/Repositories/DrawingRepository.swift */,
+				B1000000000000000000000E /* Data/LocalStorageError.swift */,
+				B1000000000000000000000F /* Data/FileSystemNotesRepository.swift */,
+				B10000000000000000000010 /* Data/FileSystemDrawingRepository.swift */,
 				B10000000000000000000002 /* Assets.xcassets */,
 			);
 			path = Signotes;
@@ -103,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				B20000000000000000000001 /* DomainModelTests.swift */,
+				B20000000000000000000003 /* LocalPersistenceTests.swift */,
 			);
 			path = SignotesTests;
 			sourceTree = "<group>";
@@ -215,6 +233,11 @@
 				A10000000000000000000008 /* Domain/Models/PageTemplate.swift in Sources */,
 				A10000000000000000000009 /* Domain/Models/DrawingToolKind.swift in Sources */,
 				A1000000000000000000000A /* Domain/Models/DrawingToolPreset.swift in Sources */,
+				A1000000000000000000000B /* Domain/Repositories/NotesRepository.swift in Sources */,
+				A1000000000000000000000C /* Domain/Repositories/DrawingRepository.swift in Sources */,
+				A1000000000000000000000D /* Data/LocalStorageError.swift in Sources */,
+				A1000000000000000000000E /* Data/FileSystemNotesRepository.swift in Sources */,
+				A1000000000000000000000F /* Data/FileSystemDrawingRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,6 +246,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A20000000000000000000001 /* DomainModelTests.swift in Sources */,
+				A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

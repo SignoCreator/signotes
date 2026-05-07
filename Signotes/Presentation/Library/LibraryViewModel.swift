@@ -92,10 +92,10 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    func createRootFolder() async {
+    func createRootFolder(name: String, colorHex: String) async {
         do {
             var updatedLibrary = library
-            let folder = try updatedLibrary.addFolder(name: "Nuova cartella")
+            let folder = try updatedLibrary.addFolder(name: name, colorHex: colorHex)
             try await notesRepository.saveLibrary(updatedLibrary)
             library = updatedLibrary
             selectRootFolder(id: folder.id)
@@ -104,7 +104,7 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    func createChildFolder() async {
+    func createChildFolder(name: String, colorHex: String) async {
         guard let currentFolderID else {
             return
         }
@@ -112,7 +112,8 @@ final class LibraryViewModel: ObservableObject {
         do {
             var updatedLibrary = library
             let folder = try updatedLibrary.addFolder(
-                name: "Nuova cartella",
+                name: name,
+                colorHex: colorHex,
                 parentID: currentFolderID
             )
             try await notesRepository.saveLibrary(updatedLibrary)
@@ -123,14 +124,18 @@ final class LibraryViewModel: ObservableObject {
         }
     }
 
-    func createNote() async {
+    func createNote(title: String, colorHex: String) async {
         guard let currentFolderID else {
             return
         }
 
         do {
             var updatedLibrary = library
-            _ = try updatedLibrary.addNote(title: "Nuova lezione", folderID: currentFolderID)
+            _ = try updatedLibrary.addNote(
+                title: title,
+                colorHex: colorHex,
+                folderID: currentFolderID
+            )
             try await notesRepository.saveLibrary(updatedLibrary)
             library = updatedLibrary
         } catch {

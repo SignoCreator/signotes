@@ -100,9 +100,18 @@ extension NoteLibrarySnapshot {
             .first
     }
 
-    mutating func addFolder(name: String, parentID: UUID? = nil, id: UUID = UUID()) throws -> NotebookFolder {
+    mutating func addFolder(
+        name: String,
+        colorHex: String? = nil,
+        parentID: UUID? = nil,
+        id: UUID = UUID()
+    ) throws -> NotebookFolder {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let folder = NotebookFolder(id: id, name: trimmedName.isEmpty ? "Nuova cartella" : trimmedName)
+        let folder = NotebookFolder(
+            id: id,
+            name: trimmedName.isEmpty ? "Nuova cartella" : trimmedName,
+            colorHex: colorHex
+        )
 
         if let parentID {
             guard let parentIndex = folders.firstIndex(where: { $0.id == parentID }) else {
@@ -116,7 +125,12 @@ extension NoteLibrarySnapshot {
         return folder
     }
 
-    mutating func addNote(title: String, folderID: UUID, now: Date = Date()) throws -> NoteDocument {
+    mutating func addNote(
+        title: String,
+        colorHex: String? = nil,
+        folderID: UUID,
+        now: Date = Date()
+    ) throws -> NoteDocument {
         guard let folderIndex = folders.firstIndex(where: { $0.id == folderID }) else {
             throw LibraryMutationError.folderNotFound(folderID)
         }
@@ -138,6 +152,7 @@ extension NoteLibrarySnapshot {
             id: noteID,
             folderID: folderID,
             title: trimmedTitle.isEmpty ? "Nuova lezione" : trimmedTitle,
+            colorHex: colorHex,
             pageIDs: [pageID],
             createdAt: now,
             updatedAt: now

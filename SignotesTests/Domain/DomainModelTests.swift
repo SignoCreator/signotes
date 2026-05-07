@@ -35,10 +35,11 @@ final class DomainModelTests: XCTestCase {
     func testLibrarySupportsRecursiveFolders() throws {
         var library = NoteLibrarySnapshot()
 
-        let root = try library.addFolder(name: "Matematica")
-        let child = try library.addFolder(name: "Analisi", parentID: root.id)
+        let root = try library.addFolder(name: "Matematica", colorHex: "#F2C94C")
+        let child = try library.addFolder(name: "Analisi", colorHex: "#4F8BFF", parentID: root.id)
         let note = try library.addNote(
             title: "Lezione 1",
+            colorHex: "#5AC8A8",
             folderID: child.id,
             now: Date(timeIntervalSince1970: 10)
         )
@@ -46,6 +47,9 @@ final class DomainModelTests: XCTestCase {
         XCTAssertEqual(library.rootFolders.map(\.id), [root.id])
         XCTAssertEqual(library.childFolders(of: root.id).map(\.id), [child.id])
         XCTAssertEqual(library.notes(in: child.id).map(\.id), [note.id])
+        XCTAssertEqual(library.folder(id: root.id)?.colorHex, "#F2C94C")
+        XCTAssertEqual(library.folder(id: child.id)?.colorHex, "#4F8BFF")
+        XCTAssertEqual(library.note(id: note.id)?.colorHex, "#5AC8A8")
         XCTAssertEqual(library.firstPage(in: note.id)?.noteID, note.id)
         XCTAssertFalse(library.containsFolderCycle())
     }

@@ -13,9 +13,10 @@ Signotes uses a **modular Clean Architecture with MVVM for SwiftUI presentation*
 
 The project currently contains only the architectural skeleton and a minimal SwiftUI app entry point. Implementation starts from the MVP plan in `docs/MVP.md`.
 
+Execution plans for the MVP milestones live in `docs/exec-plans/`.
+
 ## Development
 
 Open `Signotes.xcodeproj` in Xcode, select an iPad simulator or physical iPad, choose your signing team, then run the app.
 
 The first implementation target is native iPadOS with SwiftUI + PencilKit.
-

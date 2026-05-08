@@ -6,6 +6,7 @@ struct PencilCanvasRepresentable: UIViewRepresentable {
     let tool: any PKTool
     let toolKind: EditorDrawingTool
     let onDrawingChange: (PKDrawing) -> Void
+    let onToolChange: (EditorDrawingTool) -> Void
 
     func makeUIView(context: Context) -> PKCanvasView {
         let canvasView = PKCanvasView()
@@ -15,7 +16,7 @@ struct PencilCanvasRepresentable: UIViewRepresentable {
         canvasView.drawingPolicy = .pencilOnly
         canvasView.isOpaque = false
         canvasView.overrideUserInterfaceStyle = .light
-        context.coordinator.configure(canvasView, tool: tool, toolKind: toolKind)
+        context.coordinator.configure(canvasView, toolKind: toolKind)
         return canvasView
     }
 
@@ -28,7 +29,7 @@ struct PencilCanvasRepresentable: UIViewRepresentable {
 
         canvasView.overrideUserInterfaceStyle = .light
 
-        context.coordinator.applyToolIfNeeded(tool, toolKind: toolKind, to: canvasView)
+        context.coordinator.applyToolIfNeeded(toolKind, to: canvasView)
     }
 
     static func dismantleUIView(_ canvasView: PKCanvasView, coordinator: Coordinator) {
@@ -39,53 +40,79 @@ struct PencilCanvasRepresentable: UIViewRepresentable {
         Coordinator(parent: self)
     }
 
-    final class Coordinator: NSObject, PKCanvasViewDelegate {
+    final class Coordinator: NSObject, PKCanvasViewDelegate, PKToolPickerObserver {
         var parent: PencilCanvasRepresentable
         private let toolPicker: PKToolPicker
         private let toolPickerItemsByKind: [EditorDrawingTool: PKToolPickerItem]
+        private let toolKindsByItemIdentifier: [String: EditorDrawingTool]
         private var appliedToolKind: EditorDrawingTool?
+        private var isApplyingToolProgrammatically = false
 
         init(parent: PencilCanvasRepresentable) {
             let toolPickerPairs = EditorDrawingTool.allCases.map { ($0, $0.makeToolPickerItem()) }
             toolPickerItemsByKind = Dictionary(uniqueKeysWithValues: toolPickerPairs)
+            toolKindsByItemIdentifier = Dictionary(
+                uniqueKeysWithValues: toolPickerPairs.map { ($0.1.identifier, $0.0) }
+            )
             toolPicker = PKToolPicker(toolItems: toolPickerPairs.map(\.1))
             self.parent = parent
         }
 
-        func configure(_ canvasView: PKCanvasView, tool: any PKTool, toolKind: EditorDrawingTool) {
+        func configure(_ canvasView: PKCanvasView, toolKind: EditorDrawingTool) {
             canvasView.maximumSupportedContentVersion = .version3
             toolPicker.maximumSupportedContentVersion = .version3
             toolPicker.overrideUserInterfaceStyle = .light
             toolPicker.colorUserInterfaceStyle = .light
             toolPicker.showsDrawingPolicyControls = false
             toolPicker.addObserver(canvasView)
+            toolPicker.addObserver(self)
 
-            applyTool(tool, toolKind: toolKind, to: canvasView)
+            applyTool(toolKind, to: canvasView)
             toolPicker.setVisible(true, forFirstResponder: canvasView)
             canvasView.becomeFirstResponder()
         }
 
-        func applyToolIfNeeded(_ tool: any PKTool, toolKind: EditorDrawingTool, to canvasView: PKCanvasView) {
+        func applyToolIfNeeded(_ toolKind: EditorDrawingTool, to canvasView: PKCanvasView) {
             guard appliedToolKind != toolKind else {
                 return
             }
 
-            applyTool(tool, toolKind: toolKind, to: canvasView)
+            applyTool(toolKind, to: canvasView)
         }
 
         func detach(from canvasView: PKCanvasView) {
             toolPicker.removeObserver(canvasView)
+            toolPicker.removeObserver(self)
         }
 
         func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
             parent.onDrawingChange(canvasView.drawing)
         }
 
-        private func applyTool(_ tool: any PKTool, toolKind: EditorDrawingTool, to canvasView: PKCanvasView) {
-            canvasView.tool = tool
+        func toolPickerSelectedToolItemDidChange(_ toolPicker: PKToolPicker) {
+            guard !isApplyingToolProgrammatically else {
+                return
+            }
+
+            let selectedIdentifier = toolPicker.selectedToolItemIdentifier
+            guard let selectedToolKind = toolKindsByItemIdentifier[selectedIdentifier] else {
+                return
+            }
+
+            appliedToolKind = selectedToolKind
+            parent.onToolChange(selectedToolKind)
+        }
+
+        private func applyTool(_ toolKind: EditorDrawingTool, to canvasView: PKCanvasView) {
+            let tool = toolKind.makeTool()
+
+            isApplyingToolProgrammatically = true
+            defer { isApplyingToolProgrammatically = false }
+
             if let toolPickerItem = toolPickerItemsByKind[toolKind] {
                 toolPicker.selectedToolItem = toolPickerItem
             }
+            canvasView.tool = tool
             appliedToolKind = toolKind
         }
     }

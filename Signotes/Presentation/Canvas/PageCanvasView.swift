@@ -7,6 +7,7 @@ struct PageCanvasView: View {
     let tool: any PKTool
     let toolKind: EditorDrawingTool
     let onDrawingChange: (PKDrawing) -> Void
+    let onToolChange: (EditorDrawingTool) -> Void
 
     var body: some View {
         ZStack {
@@ -16,7 +17,8 @@ struct PageCanvasView: View {
                 drawing: $drawing,
                 tool: tool,
                 toolKind: toolKind,
-                onDrawingChange: onDrawingChange
+                onDrawingChange: onDrawingChange,
+                onToolChange: onToolChange
             )
         }
         .aspectRatio(page.format.aspectRatio, contentMode: .fit)

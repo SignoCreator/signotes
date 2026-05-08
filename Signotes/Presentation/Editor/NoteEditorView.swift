@@ -26,7 +26,8 @@ struct NoteEditorView: View {
                         drawing: $viewModel.drawing,
                         tool: viewModel.tool,
                         toolKind: viewModel.selectedTool,
-                        onDrawingChange: viewModel.save
+                        onDrawingChange: viewModel.save,
+                        onToolChange: viewModel.selectTool
                     )
                     .frame(width: pageSize.width, height: pageSize.height)
                 }

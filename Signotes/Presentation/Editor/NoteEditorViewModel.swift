@@ -62,6 +62,10 @@ final class NoteEditorViewModel: ObservableObject {
         scheduleAutosave()
     }
 
+    func selectTool(_ tool: EditorDrawingTool) {
+        selectedTool = tool
+    }
+
     func flushPendingDrawing() async {
         autosaveTask?.cancel()
         autosaveTask = nil

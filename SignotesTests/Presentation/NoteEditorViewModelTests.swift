@@ -9,12 +9,12 @@ final class NoteEditorViewModelTests: XCTestCase {
         let tool = NoteEditorViewModel.defaultWritingTool()
 
         XCTAssertEqual(tool.inkType, .fountainPen)
-        XCTAssertEqual(tool.color, .black)
-        XCTAssertEqual(tool.color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)), .black)
+        assertBlack(tool.color)
+        assertBlack(tool.color.resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)))
         XCTAssertEqual(tool.width, 2.4, accuracy: 0.000_001)
     }
 
-    func testEditorToolDefaultsToFountainPen() {
+    func testEditorToolDefaultsToFountainPen() throws {
         let viewModel = NoteEditorViewModel(
             noteID: UUID(),
             notesRepository: EditorInMemoryNotesRepository(snapshot: .seed),
@@ -24,7 +24,7 @@ final class NoteEditorViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedTool, .fountainPen)
         let tool = viewModel.tool as? PKInkingTool
         XCTAssertEqual(tool?.inkType, .fountainPen)
-        XCTAssertEqual(tool?.color, .black)
+        assertBlack(try XCTUnwrap(tool?.color))
     }
 
     func testUpdateTemplatePersistsMetadataWithoutSavingDrawingBlob() async throws {
@@ -100,6 +100,27 @@ final class NoteEditorViewModelTests: XCTestCase {
         let saveCount = await drawingRepository.savedDrawingCount()
         XCTAssertEqual(saveCount, 1)
     }
+}
+
+private func assertBlack(
+    _ color: UIColor,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) {
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+
+    XCTAssertTrue(
+        color.getRed(&red, green: &green, blue: &blue, alpha: &alpha),
+        file: file,
+        line: line
+    )
+    XCTAssertEqual(red, 0, accuracy: 0.000_001, file: file, line: line)
+    XCTAssertEqual(green, 0, accuracy: 0.000_001, file: file, line: line)
+    XCTAssertEqual(blue, 0, accuracy: 0.000_001, file: file, line: line)
+    XCTAssertEqual(alpha, 1, accuracy: 0.000_001, file: file, line: line)
 }
 
 private actor EditorInMemoryNotesRepository: NotesRepository {

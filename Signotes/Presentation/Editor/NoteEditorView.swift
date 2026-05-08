@@ -28,10 +28,8 @@ struct NoteEditorView: View {
                     PageCanvasView(
                         page: page,
                         drawing: $viewModel.drawing,
-                        tool: viewModel.tool,
                         toolKind: viewModel.selectedTool,
-                        onDrawingChange: viewModel.save,
-                        onToolChange: viewModel.selectTool
+                        onDrawingChange: viewModel.save
                     )
                     .frame(width: pageSize.width, height: pageSize.height)
                 }

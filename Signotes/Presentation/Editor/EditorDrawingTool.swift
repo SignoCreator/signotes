@@ -74,21 +74,4 @@ enum EditorDrawingTool: String, CaseIterable, Identifiable, Equatable, Hashable 
             PKLassoTool()
         }
     }
-
-    func makeToolPickerItem() -> PKToolPickerItem {
-        switch self {
-        case .fountainPen:
-            PKToolPickerInkingItem(type: .fountainPen, color: UIColor.black, width: 2.4, identifier: id)
-        case .pen:
-            PKToolPickerInkingItem(type: .pen, color: UIColor.black, width: 2.0, identifier: id)
-        case .pencil:
-            PKToolPickerInkingItem(type: .pencil, color: UIColor.darkGray, width: 3.0, identifier: id)
-        case .marker:
-            PKToolPickerInkingItem(type: .marker, color: UIColor.systemYellow.withAlphaComponent(0.72), width: 8.0, identifier: id)
-        case .eraser:
-            PKToolPickerEraserItem(type: .bitmap)
-        case .lasso:
-            PKToolPickerLassoItem()
-        }
-    }
 }

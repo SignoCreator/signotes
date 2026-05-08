@@ -4,10 +4,8 @@ import SwiftUI
 struct PageCanvasView: View {
     let page: NotePage
     @Binding var drawing: PKDrawing
-    let tool: any PKTool
     let toolKind: EditorDrawingTool
     let onDrawingChange: (PKDrawing) -> Void
-    let onToolChange: (EditorDrawingTool) -> Void
 
     var body: some View {
         ZStack {
@@ -15,10 +13,8 @@ struct PageCanvasView: View {
 
             PencilCanvasRepresentable(
                 drawing: $drawing,
-                tool: tool,
                 toolKind: toolKind,
-                onDrawingChange: onDrawingChange,
-                onToolChange: onToolChange
+                onDrawingChange: onDrawingChange
             )
         }
         .aspectRatio(page.format.aspectRatio, contentMode: .fit)

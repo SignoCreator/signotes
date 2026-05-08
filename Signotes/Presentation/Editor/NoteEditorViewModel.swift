@@ -6,7 +6,7 @@ import UIKit
 final class NoteEditorViewModel: ObservableObject {
     @Published private(set) var title = "Nota"
     @Published private(set) var page: NotePage?
-    @Published var drawing = PKDrawing()
+    @Published private(set) var drawing = PKDrawing()
     @Published var selectedTool: EditorDrawingTool = .fountainPen
     @Published var errorMessage: String?
 
@@ -57,7 +57,6 @@ final class NoteEditorViewModel: ObservableObject {
     }
 
     func save(_ drawing: PKDrawing) {
-        self.drawing = drawing
         pendingDrawing = drawing
         scheduleAutosave()
     }

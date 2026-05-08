@@ -1,25 +1,61 @@
 import PencilKit
 import SwiftUI
 
-struct PageCanvasView: View {
+struct PageCanvasView: UIViewRepresentable {
     let page: NotePage
-    @Binding var drawing: PKDrawing
+    let initialDrawing: PKDrawing
+    let pageSize: CGSize
+    let resetZoomToken: Int
     let toolKind: EditorDrawingTool
     let onDrawingChange: (PKDrawing) -> Void
 
-    var body: some View {
-        ZStack {
-            PageBackgroundView(template: page.template)
-
-            PencilCanvasRepresentable(
-                drawing: $drawing,
-                toolKind: toolKind,
-                onDrawingChange: onDrawingChange
-            )
+    func makeUIView(context: Context) -> PencilPageContainerView {
+        let containerView = PencilPageContainerView()
+        let coordinator = context.coordinator
+        containerView.onDrawingChange = { drawing in
+            coordinator.drawingDidChange(drawing)
         }
-        .aspectRatio(page.format.aspectRatio, contentMode: .fit)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 2))
-        .shadow(color: .black.opacity(0.16), radius: 18, x: 0, y: 8)
+        containerView.configure(
+            drawingResourceID: page.drawingResourceID,
+            pageSize: pageSize,
+            template: page.template,
+            initialDrawing: initialDrawing,
+            toolKind: toolKind,
+            resetZoomToken: resetZoomToken
+        )
+        return containerView
+    }
+
+    func updateUIView(_ containerView: PencilPageContainerView, context: Context) {
+        context.coordinator.parent = self
+        containerView.configure(
+            drawingResourceID: page.drawingResourceID,
+            pageSize: pageSize,
+            template: page.template,
+            initialDrawing: initialDrawing,
+            toolKind: toolKind,
+            resetZoomToken: resetZoomToken
+        )
+    }
+
+    static func dismantleUIView(_ containerView: PencilPageContainerView, coordinator: Coordinator) {
+        containerView.flushPendingDrawingChange()
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    @MainActor
+    final class Coordinator {
+        var parent: PageCanvasView
+
+        init(parent: PageCanvasView) {
+            self.parent = parent
+        }
+
+        func drawingDidChange(_ drawing: PKDrawing) {
+            parent.onDrawingChange(drawing)
+        }
     }
 }

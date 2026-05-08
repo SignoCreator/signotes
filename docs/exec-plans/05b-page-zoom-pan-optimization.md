@@ -43,7 +43,8 @@ The MVP editor already uses PencilKit for handwriting. Page templates add visual
 - Throttle any viewport persistence separately from drawing autosave.
 - Keep template backgrounds vector-based and cheap to redraw.
 - Do not rasterize the full A4 page at high zoom unless a measured performance issue requires it.
-- Clamp zoom to a practical range, initially `fitToWidth...4x`, then tune on iPad.
+- Clamp zoom to a practical range, currently `fitToWidth...8x`, then tune on iPad.
+- Treat the maximum zoom as product configuration, not a permanent hardcoded constant.
 - Avoid unnecessary SwiftUI layout invalidations while the user pans.
 - Measure with real device observation: stroke latency, dropped frames during pinch, memory growth after repeated zoom/write/navigation cycles.
 
@@ -57,6 +58,7 @@ The MVP editor already uses PencilKit for handwriting. Page templates add visual
 6. Keep page template background aligned under PencilKit at every scale.
 7. Add ViewModel or coordinator tests for zoom clamp and fit calculations where possible.
 8. Add manual device smoke tests for Pencil, pan, pinch, rotate, and relaunch.
+9. Follow-up: expose maximum zoom as an editor/app preference with validated presets, for example 4x, 6x, and 8x.
 
 ## Acceptance Criteria
 
@@ -65,6 +67,7 @@ The MVP editor already uses PencilKit for handwriting. Page templates add visual
 - Apple Pencil writing remains responsive while zoomed.
 - Page template background and handwriting stay aligned.
 - Fit/reset control returns to the expected scale.
+- Current max zoom reaches 8x without background/ink drift at the limit.
 - Zooming does not erase or mutate drawing data.
 - No obvious memory growth after repeated zoom/write/navigation cycles.
 
@@ -90,3 +93,7 @@ The MVP editor already uses PencilKit for handwriting. Page templates add visual
 - Apple Pencil remains the primary, responsive input path.
 - Page geometry is shared consistently by background and drawing canvas.
 - Optimization constraints are documented and verified on physical iPad.
+
+## Follow-Up
+
+- If handwriting appears pixelated while zoomed, execute `05c-canvas-rendering-quality.md` before expanding editor features. Zoom UX is not considered production-quality until the rendered ink and paper templates remain sharp at high zoom on physical iPad.

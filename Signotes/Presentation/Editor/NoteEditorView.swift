@@ -3,7 +3,6 @@ import SwiftUI
 struct NoteEditorView: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject var viewModel: NoteEditorViewModel
-    @State private var zoomScale: CGFloat = 1
     @State private var resetZoomToken = 0
 
     private let pageSize = CGSize(width: 794, height: 1123)
@@ -14,25 +13,15 @@ struct NoteEditorView: View {
                 .ignoresSafeArea()
 
             if let page = viewModel.page {
-                ZoomablePageScrollView(
+                // `PageCanvasView` owns zoom and canvas rendering in UIKit so PencilKit can redraw sharply while scaled.
+                PageCanvasView(
+                    page: page,
+                    initialDrawing: viewModel.drawing,
                     pageSize: pageSize,
-                    zoomScale: $zoomScale,
                     resetZoomToken: resetZoomToken,
-                    contentUpdateID: PageCanvasContentID(
-                        pageID: page.id,
-                        template: page.template,
-                        tool: viewModel.selectedTool
-                    )
-                ) {
-                    // UIScrollView owns zoom/pan so PencilKit can keep native low-latency input.
-                    PageCanvasView(
-                        page: page,
-                        drawing: $viewModel.drawing,
-                        toolKind: viewModel.selectedTool,
-                        onDrawingChange: viewModel.save
-                    )
-                    .frame(width: pageSize.width, height: pageSize.height)
-                }
+                    toolKind: viewModel.selectedTool,
+                    onDrawingChange: viewModel.save
+                )
             } else {
                 ProgressView()
             }
@@ -118,12 +107,6 @@ struct NoteEditorView: View {
             }
         )
     }
-}
-
-private struct PageCanvasContentID: Hashable {
-    let pageID: UUID
-    let template: PageTemplate
-    let tool: EditorDrawingTool
 }
 
 private extension PageTemplate {

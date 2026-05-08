@@ -25,8 +25,8 @@
 		A10000000000000000000010 /* Presentation/Editor/NoteEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* Presentation/Editor/NoteEditorViewModel.swift */; };
 		A10000000000000000000011 /* Presentation/Editor/NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* Presentation/Editor/NoteEditorView.swift */; };
 		A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */; };
-		A10000000000000000000013 /* Presentation/Canvas/PageBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */; };
-		A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */; };
+		A10000000000000000000013 /* Presentation/Canvas/PencilPageContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Presentation/Canvas/PencilPageContainerView.swift */; };
+		A10000000000000000000014 /* Presentation/Canvas/PaperTemplateUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* Presentation/Canvas/PaperTemplateUIView.swift */; };
 		A10000000000000000000015 /* Presentation/Library/LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */; };
 		A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* Presentation/Library/LibraryView.swift */; };
 		A10000000000000000000017 /* Presentation/Library/LibraryDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */; };
@@ -37,7 +37,6 @@
 		A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */; };
 		A1000000000000000000001D /* Presentation/Library/LibraryDragItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */; };
 		A1000000000000000000001E /* Presentation/Canvas/CanvasViewportConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */; };
-		A1000000000000000000001F /* Presentation/Canvas/ZoomablePageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */; };
 		A10000000000000000000020 /* Presentation/Editor/EditorDrawingTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */; };
 		A10000000000000000000021 /* Presentation/Editor/EditorToolPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
@@ -77,8 +76,8 @@
 		B10000000000000000000011 /* Presentation/Editor/NoteEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/NoteEditorViewModel.swift; sourceTree = "<group>"; };
 		B10000000000000000000012 /* Presentation/Editor/NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/NoteEditorView.swift; sourceTree = "<group>"; };
 		B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PageCanvasView.swift; sourceTree = "<group>"; };
-		B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PageBackgroundView.swift; sourceTree = "<group>"; };
-		B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PencilCanvasRepresentable.swift; sourceTree = "<group>"; };
+		B10000000000000000000014 /* Presentation/Canvas/PencilPageContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PencilPageContainerView.swift; sourceTree = "<group>"; };
+		B10000000000000000000015 /* Presentation/Canvas/PaperTemplateUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PaperTemplateUIView.swift; sourceTree = "<group>"; };
 		B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryViewModel.swift; sourceTree = "<group>"; };
 		B10000000000000000000017 /* Presentation/Library/LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryView.swift; sourceTree = "<group>"; };
 		B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryDesign.swift; sourceTree = "<group>"; };
@@ -89,7 +88,6 @@
 		B1000000000000000000001D /* Presentation/Library/LibraryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryHeaderView.swift; sourceTree = "<group>"; };
 		B1000000000000000000001E /* Presentation/Library/LibraryDragItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Library/LibraryDragItem.swift; sourceTree = "<group>"; };
 		B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/CanvasViewportConfiguration.swift; sourceTree = "<group>"; };
-		B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/ZoomablePageScrollView.swift; sourceTree = "<group>"; };
 		B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorDrawingTool.swift; sourceTree = "<group>"; };
 		B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorToolPaletteView.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
@@ -149,10 +147,9 @@
 				B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */,
 				B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */,
 				B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */,
-				B10000000000000000000014 /* Presentation/Canvas/PageBackgroundView.swift */,
-				B10000000000000000000015 /* Presentation/Canvas/PencilCanvasRepresentable.swift */,
+				B10000000000000000000014 /* Presentation/Canvas/PencilPageContainerView.swift */,
+				B10000000000000000000015 /* Presentation/Canvas/PaperTemplateUIView.swift */,
 				B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */,
-				B10000000000000000000020 /* Presentation/Canvas/ZoomablePageScrollView.swift */,
 				B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */,
 				B10000000000000000000017 /* Presentation/Library/LibraryView.swift */,
 				B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */,
@@ -306,8 +303,8 @@
 				A10000000000000000000020 /* Presentation/Editor/EditorDrawingTool.swift in Sources */,
 				A10000000000000000000021 /* Presentation/Editor/EditorToolPaletteView.swift in Sources */,
 				A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */,
-				A10000000000000000000013 /* Presentation/Canvas/PageBackgroundView.swift in Sources */,
-				A10000000000000000000014 /* Presentation/Canvas/PencilCanvasRepresentable.swift in Sources */,
+				A10000000000000000000013 /* Presentation/Canvas/PencilPageContainerView.swift in Sources */,
+				A10000000000000000000014 /* Presentation/Canvas/PaperTemplateUIView.swift in Sources */,
 				A10000000000000000000015 /* Presentation/Library/LibraryViewModel.swift in Sources */,
 				A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */,
 				A10000000000000000000017 /* Presentation/Library/LibraryDesign.swift in Sources */,
@@ -318,7 +315,6 @@
 				A1000000000000000000001C /* Presentation/Library/LibraryHeaderView.swift in Sources */,
 				A1000000000000000000001D /* Presentation/Library/LibraryDragItem.swift in Sources */,
 				A1000000000000000000001E /* Presentation/Canvas/CanvasViewportConfiguration.swift in Sources */,
-				A1000000000000000000001F /* Presentation/Canvas/ZoomablePageScrollView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

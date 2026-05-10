@@ -20,6 +20,24 @@ struct NoteLibrarySnapshot: Codable, Equatable, Sendable {
         self.pages = pages
         self.toolPresets = toolPresets
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        folders = try container.decode([NotebookFolder].self, forKey: .folders)
+        notes = try container.decode([NoteDocument].self, forKey: .notes)
+        pages = try container.decode([NotePage].self, forKey: .pages)
+        toolPresets = try container.decodeIfPresent([DrawingToolPreset].self, forKey: .toolPresets) ?? DrawingToolPreset.defaults
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case folders
+        case notes
+        case pages
+        case toolPresets
+    }
 }
 
 extension NoteLibrarySnapshot {
@@ -89,15 +107,83 @@ extension NoteLibrarySnapshot {
     }
 
     func firstPage(in noteID: UUID) -> NotePage? {
+        pages(in: noteID).first
+    }
+
+    func pages(in noteID: UUID) -> [NotePage] {
         guard let note = note(id: noteID) else {
-            return nil
+            return []
         }
 
         let pageIDs = Set(note.pageIDs)
         return pages
             .filter { pageIDs.contains($0.id) }
             .sorted { $0.index < $1.index }
-            .first
+    }
+
+    func page(id: UUID) -> NotePage? {
+        pages.first { $0.id == id }
+    }
+
+    func toolPreset(id: UUID) -> DrawingToolPreset? {
+        toolPresets.first { $0.id == id }
+    }
+
+    mutating func addToolPreset(
+        name: String,
+        kind: DrawingToolKind,
+        colorHex: String,
+        width: Double,
+        id: UUID = UUID()
+    ) -> DrawingToolPreset {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let preset = DrawingToolPreset(
+            id: id,
+            name: trimmedName.isEmpty ? "Nuovo strumento" : trimmedName,
+            kind: kind,
+            colorHex: colorHex,
+            width: width
+        )
+
+        toolPresets.append(preset)
+        return preset
+    }
+
+    mutating func updateToolPreset(
+        id: UUID,
+        name: String,
+        kind: DrawingToolKind,
+        colorHex: String,
+        width: Double
+    ) throws {
+        guard let index = toolPresets.firstIndex(where: { $0.id == id }) else {
+            throw LibraryMutationError.toolPresetNotFound(id)
+        }
+
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        toolPresets[index].name = trimmedName.isEmpty ? toolPresets[index].name : trimmedName
+        toolPresets[index].kind = kind
+        toolPresets[index].colorHex = colorHex
+        toolPresets[index].width = min(max(width, DrawingToolPreset.minimumWidth), DrawingToolPreset.maximumWidth)
+    }
+
+    mutating func deleteCustomToolPreset(id: UUID) throws {
+        guard let preset = toolPreset(id: id) else {
+            throw LibraryMutationError.toolPresetNotFound(id)
+        }
+
+        guard !preset.isBuiltIn else {
+            throw LibraryMutationError.cannotDeleteBuiltInToolPreset(id)
+        }
+
+        if preset.isWritingTool {
+            let remainingWritingTools = toolPresets.filter { $0.id != id && $0.isWritingTool }
+            guard !remainingWritingTools.isEmpty else {
+                throw LibraryMutationError.cannotDeleteLastWritingToolPreset(id)
+            }
+        }
+
+        toolPresets.removeAll { $0.id == id }
     }
 
     mutating func addFolder(
@@ -192,6 +278,30 @@ extension NoteLibrarySnapshot {
         }
 
         pages[pageIndex].template = template
+    }
+
+    mutating func appendPage(toNoteID noteID: UUID, template: PageTemplate) throws -> NotePage {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
+            throw LibraryMutationError.noteNotFound(noteID)
+        }
+
+        let existingPages = pages(in: noteID)
+        let nextIndex = (existingPages.map(\.index).max() ?? -1) + 1
+        let pageID = UUID()
+        let page = NotePage(
+            id: pageID,
+            noteID: noteID,
+            index: nextIndex,
+            format: .a4Portrait,
+            template: template,
+            drawingResourceID: "\(pageID.uuidString).drawing"
+        )
+
+        notes[noteIndex].pageIDs.append(pageID)
+        notes[noteIndex].updatedAt = Date()
+        pages.append(page)
+
+        return page
     }
 
     mutating func deleteNote(id: UUID) throws -> [String] {
@@ -340,6 +450,9 @@ enum LibraryMutationError: Error, Equatable {
     case noteNotFound(UUID)
     case pageNotFound(UUID)
     case invalidFolderMove(UUID, UUID)
+    case toolPresetNotFound(UUID)
+    case cannotDeleteBuiltInToolPreset(UUID)
+    case cannotDeleteLastWritingToolPreset(UUID)
 }
 
 extension NoteLibrarySnapshot {

@@ -1,6 +1,3 @@
-import PencilKit
-import UIKit
-
 enum EditorDrawingTool: String, CaseIterable, Identifiable, Equatable, Hashable {
     case fountainPen
     case pen
@@ -10,6 +7,23 @@ enum EditorDrawingTool: String, CaseIterable, Identifiable, Equatable, Hashable 
     case lasso
 
     var id: String { rawValue }
+
+    init(kind: DrawingToolKind) {
+        switch kind {
+        case .fountainPen:
+            self = .fountainPen
+        case .pen:
+            self = .pen
+        case .pencil:
+            self = .pencil
+        case .marker:
+            self = .marker
+        case .eraser:
+            self = .eraser
+        case .lasso:
+            self = .lasso
+        }
+    }
 
     var title: String {
         switch self {
@@ -45,33 +59,24 @@ enum EditorDrawingTool: String, CaseIterable, Identifiable, Equatable, Hashable 
         }
     }
 
-    var swatchColor: UIColor? {
+    var kind: DrawingToolKind {
         switch self {
-        case .fountainPen, .pen:
-            UIColor.black
+        case .fountainPen:
+            .fountainPen
+        case .pen:
+            .pen
         case .pencil:
-            UIColor.darkGray
+            .pencil
         case .marker:
-            UIColor.systemYellow
-        case .eraser, .lasso:
-            nil
+            .marker
+        case .eraser:
+            .eraser
+        case .lasso:
+            .lasso
         }
     }
 
-    func makeTool() -> any PKTool {
-        switch self {
-        case .fountainPen:
-            PKInkingTool(.fountainPen, color: UIColor.black, width: 2.4)
-        case .pen:
-            PKInkingTool(.pen, color: UIColor.black, width: 2.0)
-        case .pencil:
-            PKInkingTool(.pencil, color: UIColor.darkGray, width: 3.0)
-        case .marker:
-            PKInkingTool(.marker, color: UIColor.systemYellow.withAlphaComponent(0.72), width: 8.0)
-        case .eraser:
-            PKEraserTool(.bitmap)
-        case .lasso:
-            PKLassoTool()
-        }
+    var preset: DrawingToolPreset {
+        DrawingToolPreset.defaults.first { $0.kind == kind } ?? DrawingToolPreset.defaultFountainPen
     }
 }

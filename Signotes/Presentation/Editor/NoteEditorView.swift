@@ -1,9 +1,13 @@
 import SwiftUI
 
 struct NoteEditorView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
     @StateObject var viewModel: NoteEditorViewModel
     @State private var resetZoomToken = 0
+    @State private var pageTransitionDirection: PageTurnDirection = .next
+    @State private var canvasCommandRequest: EditorCanvasCommandRequest?
+    @State private var canvasCommandAvailability = EditorCanvasCommandAvailability()
 
     private let pageSize = CGSize(width: 794, height: 1123)
 
@@ -19,45 +23,54 @@ struct NoteEditorView: View {
                     initialDrawing: viewModel.drawing,
                     pageSize: pageSize,
                     resetZoomToken: resetZoomToken,
-                    toolKind: viewModel.selectedTool,
-                    onDrawingChange: viewModel.save
+                    commandRequest: canvasCommandRequest,
+                    toolPreset: viewModel.toolState.selectedPreset,
+                    onDrawingChange: viewModel.save,
+                    onPageTurn: handlePageTurn,
+                    onCommandAvailabilityChange: { availability in
+                        canvasCommandAvailability = availability
+                    }
                 )
+                .id(page.id)
+                .transition(pageTransition)
+                .zIndex(1)
             } else {
                 ProgressView()
             }
         }
-        .navigationTitle(viewModel.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                if viewModel.page != nil {
-                    Menu {
-                        Picker("Template", selection: templateSelection) {
-                            ForEach(PageTemplate.allCases) { template in
-                                Label(template.displayName, systemImage: template.systemImageName)
-                                    .tag(template)
-                            }
-                        }
-                    } label: {
-                        Label("Template", systemImage: "square.grid.3x3")
-                    }
-                }
-            }
-
-            ToolbarItem(placement: .primaryAction) {
-                if viewModel.page != nil {
-                    Button {
-                        resetZoomToken += 1
-                    } label: {
-                        Label("Adatta larghezza", systemImage: "arrow.up.left.and.down.right.magnifyingglass")
-                    }
-                }
-            }
-        }
-        .safeAreaInset(edge: .bottom) {
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .animation(.snappy(duration: 0.28, extraBounce: 0), value: viewModel.page?.id)
+        .safeAreaInset(edge: .top) {
             if viewModel.page != nil {
-                EditorToolPaletteView(selectedTool: $viewModel.selectedTool)
-                    .padding(.bottom, 8)
+                EditorTopChromeView(
+                    title: viewModel.title,
+                    pageIndicatorText: viewModel.pageIndicatorText,
+                    selectedTemplate: templateSelection,
+                    onBack: {
+                        dismiss()
+                    },
+                    onResetZoom: {
+                        resetZoomToken += 1
+                    },
+                    onUndo: {
+                        canvasCommandRequest = EditorCanvasCommandRequest(command: .undo)
+                    },
+                    onRedo: {
+                        canvasCommandRequest = EditorCanvasCommandRequest(command: .redo)
+                    },
+                    commandAvailability: canvasCommandAvailability,
+                    toolState: $viewModel.toolState,
+                    onCreatePreset: { name, kind, colorHex, width in
+                        await viewModel.createToolPreset(name: name, kind: kind, colorHex: colorHex, width: width)
+                    },
+                    onUpdatePreset: { id, name, kind, colorHex, width in
+                        await viewModel.updateToolPreset(id: id, name: name, kind: kind, colorHex: colorHex, width: width)
+                    },
+                    onDeletePreset: { id in
+                        await viewModel.deleteToolPreset(id: id)
+                    }
+                )
             }
         }
         .task {
@@ -107,32 +120,37 @@ struct NoteEditorView: View {
             }
         )
     }
-}
 
-private extension PageTemplate {
-    var displayName: String {
-        switch self {
-        case .blank:
-            "Bianco"
-        case .ruled:
-            "Righe"
-        case .grid:
-            "Quadretti"
-        case .dotted:
-            "Puntinato"
+    private func handlePageTurn(_ direction: PageTurnDirection) {
+        Task {
+            let previousPageID = viewModel.page?.id
+            pageTransitionDirection = direction
+
+            switch direction {
+            case .previous:
+                await viewModel.goToPreviousPage()
+            case .next:
+                await viewModel.goToNextPageOrCreate()
+            }
+
+            if viewModel.page?.id != previousPageID {
+                resetZoomToken += 1
+            }
         }
     }
 
-    var systemImageName: String {
-        switch self {
-        case .blank:
-            "doc"
-        case .ruled:
-            "list.bullet"
-        case .grid:
-            "square.grid.3x3"
-        case .dotted:
-            "circle.grid.3x3"
+    private var pageTransition: AnyTransition {
+        switch pageTransitionDirection {
+        case .previous:
+            .asymmetric(
+                insertion: .move(edge: .leading).combined(with: .opacity),
+                removal: .move(edge: .trailing).combined(with: .opacity)
+            )
+        case .next:
+            .asymmetric(
+                insertion: .move(edge: .trailing).combined(with: .opacity),
+                removal: .move(edge: .leading).combined(with: .opacity)
+            )
         }
     }
 }

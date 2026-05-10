@@ -32,6 +32,61 @@ final class DomainModelTests: XCTestCase {
         XCTAssertEqual(decoded, NoteLibrarySnapshot.seed)
     }
 
+    func testDefaultToolPresetsHaveStableIDsAndAllKinds() {
+        XCTAssertEqual(DrawingToolPreset.defaults.first?.id, DrawingToolPreset.defaultFountainPenID)
+        XCTAssertEqual(DrawingToolPreset.defaultFountainPen.kind, .fountainPen)
+        XCTAssertEqual(DrawingToolPreset.defaultFountainPen.colorHex, "#000000")
+        XCTAssertEqual(DrawingToolPreset.defaultFountainPen.width, 2.4)
+
+        XCTAssertEqual(
+            DrawingToolPreset.defaults.map(\.kind),
+            [.fountainPen, .pen, .pencil, .marker, .eraser, .lasso]
+        )
+    }
+
+    func testDrawingToolPresetClampsWidth() {
+        let tooSmall = DrawingToolPreset(name: "Too Small", kind: .pen, width: -2.0)
+        let tooLarge = DrawingToolPreset(name: "Too Large", kind: .marker, width: 99.0)
+
+        XCTAssertEqual(tooSmall.width, DrawingToolPreset.minimumWidth)
+        XCTAssertEqual(tooLarge.width, DrawingToolPreset.maximumWidth)
+    }
+
+    func testAddUpdateAndDeleteCustomToolPreset() throws {
+        var library = NoteLibrarySnapshot()
+        let preset = library.addToolPreset(
+            name: "Penna rossa",
+            kind: .pen,
+            colorHex: "#FF0000",
+            width: 3.5
+        )
+
+        try library.updateToolPreset(
+            id: preset.id,
+            name: "Stilo verde",
+            kind: .fountainPen,
+            colorHex: "#00FF00",
+            width: 4.0
+        )
+
+        XCTAssertEqual(library.toolPreset(id: preset.id)?.name, "Stilo verde")
+        XCTAssertEqual(library.toolPreset(id: preset.id)?.kind, .fountainPen)
+        XCTAssertEqual(library.toolPreset(id: preset.id)?.colorHex, "#00FF00")
+        XCTAssertEqual(library.toolPreset(id: preset.id)?.width, 4.0)
+
+        try library.deleteCustomToolPreset(id: preset.id)
+
+        XCTAssertNil(library.toolPreset(id: preset.id))
+    }
+
+    func testCannotDeleteBuiltInToolPreset() {
+        var library = NoteLibrarySnapshot()
+
+        XCTAssertThrowsError(try library.deleteCustomToolPreset(id: DrawingToolPreset.defaultFountainPenID)) { error in
+            XCTAssertEqual(error as? LibraryMutationError, .cannotDeleteBuiltInToolPreset(DrawingToolPreset.defaultFountainPenID))
+        }
+    }
+
     func testLibrarySupportsRecursiveFolders() throws {
         var library = NoteLibrarySnapshot()
 
@@ -111,18 +166,36 @@ final class DomainModelTests: XCTestCase {
         XCTAssertEqual(updatedPage.format, page.format)
     }
 
+    func testAppendPageAddsOrderedPageAndInheritsRequestedTemplate() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Matematica")
+        let note = try library.addNote(title: "Lezione 1", folderID: folder.id)
+        let firstPage = try XCTUnwrap(library.firstPage(in: note.id))
+
+        let secondPage = try library.appendPage(toNoteID: note.id, template: .ruled)
+
+        let orderedPages = library.pages(in: note.id)
+        XCTAssertEqual(orderedPages.map(\.id), [firstPage.id, secondPage.id])
+        XCTAssertEqual(secondPage.index, 1)
+        XCTAssertEqual(secondPage.template, .ruled)
+        XCTAssertEqual(secondPage.format, .a4Portrait)
+        XCTAssertNotEqual(secondPage.drawingResourceID, firstPage.drawingResourceID)
+        XCTAssertEqual(library.note(id: note.id)?.pageIDs, [firstPage.id, secondPage.id])
+    }
+
     func testDeleteNoteRemovesPagesAndParentReference() throws {
         var library = NoteLibrarySnapshot()
         let folder = try library.addFolder(name: "Matematica")
         let note = try library.addNote(title: "Lezione 1", folderID: folder.id)
         let page = try XCTUnwrap(library.firstPage(in: note.id))
+        let secondPage = try library.appendPage(toNoteID: note.id, template: .dotted)
 
         let deletedResourceIDs = try library.deleteNote(id: note.id)
 
         XCTAssertNil(library.note(id: note.id))
         XCTAssertNil(library.firstPage(in: note.id))
         XCTAssertFalse(library.folder(id: folder.id)?.noteIDs.contains(note.id) ?? true)
-        XCTAssertEqual(deletedResourceIDs, [page.drawingResourceID])
+        XCTAssertEqual(Set(deletedResourceIDs), Set([page.drawingResourceID, secondPage.drawingResourceID]))
     }
 
     func testDeleteFolderTreeRemovesDescendantsNotesPagesAndParentReference() throws {
@@ -132,6 +205,7 @@ final class DomainModelTests: XCTestCase {
         let grandchild = try library.addFolder(name: "Serie", parentID: child.id)
         let note = try library.addNote(title: "Lezione 1", folderID: grandchild.id)
         let page = try XCTUnwrap(library.firstPage(in: note.id))
+        let secondPage = try library.appendPage(toNoteID: note.id, template: .ruled)
 
         let deletedResourceIDs = try library.deleteFolderTree(id: child.id)
 
@@ -141,7 +215,7 @@ final class DomainModelTests: XCTestCase {
         XCTAssertNil(library.note(id: note.id))
         XCTAssertNil(library.firstPage(in: note.id))
         XCTAssertFalse(library.folder(id: root.id)?.childFolderIDs.contains(child.id) ?? true)
-        XCTAssertEqual(deletedResourceIDs, [page.drawingResourceID])
+        XCTAssertEqual(Set(deletedResourceIDs), Set([page.drawingResourceID, secondPage.drawingResourceID]))
     }
 
     func testMoveNoteChangesParentFolderReference() throws {

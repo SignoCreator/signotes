@@ -39,11 +39,34 @@
 		A1000000000000000000001E /* Presentation/Canvas/CanvasViewportConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */; };
 		A10000000000000000000020 /* Presentation/Editor/EditorDrawingTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */; };
 		A10000000000000000000021 /* Presentation/Editor/EditorToolPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */; };
+		A10000000000000000000022 /* Presentation/Editor/EditorToolState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000023 /* Presentation/Editor/EditorToolState.swift */; };
+		A10000000000000000000023 /* Presentation/Editor/EditorToolFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000024 /* Presentation/Editor/EditorToolFactory.swift */; };
+		A10000000000000000000024 /* Presentation/Editor/EditorToolButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000025 /* Presentation/Editor/EditorToolButton.swift */; };
+		A10000000000000000000025 /* Presentation/Editor/ToolPresetSettingsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000026 /* Presentation/Editor/ToolPresetSettingsPanel.swift */; };
+		A10000000000000000000027 /* Presentation/Editor/EditorTopChromeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000028 /* Presentation/Editor/EditorTopChromeView.swift */; };
+		A10000000000000000000028 /* Presentation/Editor/FountainPenToolObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000029 /* Presentation/Editor/FountainPenToolObjectView.swift */; };
+		A1000000000000000000002A /* Presentation/Editor/ToolObjects/EditorToolObjectChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002A /* Presentation/Editor/ToolObjects/EditorToolObjectChrome.swift */; };
+		A1000000000000000000002B /* Presentation/Editor/ToolObjects/PenToolObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002B /* Presentation/Editor/ToolObjects/PenToolObjectView.swift */; };
+		A1000000000000000000002C /* Presentation/Editor/ToolObjects/PencilToolObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002C /* Presentation/Editor/ToolObjects/PencilToolObjectView.swift */; };
+		A1000000000000000000002D /* Presentation/Editor/ToolObjects/MarkerToolObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002D /* Presentation/Editor/ToolObjects/MarkerToolObjectView.swift */; };
+		A1000000000000000000002E /* Presentation/Editor/ToolObjects/EraserToolObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002E /* Presentation/Editor/ToolObjects/EraserToolObjectView.swift */; };
+		A1000000000000000000002F /* Presentation/Editor/ToolObjects/LassoToolObjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000002F /* Presentation/Editor/ToolObjects/LassoToolObjectView.swift */; };
+		A10000000000000000000030 /* Presentation/Editor/ToolSettings/ToolKindSelectionGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000030 /* Presentation/Editor/ToolSettings/ToolKindSelectionGrid.swift */; };
+		A10000000000000000000031 /* Presentation/Editor/ToolSettings/ToolKindObjectPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000031 /* Presentation/Editor/ToolSettings/ToolKindObjectPreview.swift */; };
+		A10000000000000000000032 /* Presentation/Editor/ToolSettings/InkWidthControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000032 /* Presentation/Editor/ToolSettings/InkWidthControl.swift */; };
+		A10000000000000000000033 /* Presentation/Editor/ToolSettings/InkColorPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000033 /* Presentation/Editor/ToolSettings/InkColorPaletteView.swift */; };
+		A10000000000000000000034 /* Presentation/Canvas/PageTurnIntentResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000034 /* Presentation/Canvas/PageTurnIntentResolver.swift */; };
+		A10000000000000000000035 /* Presentation/Editor/EditorToolbarMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000035 /* Presentation/Editor/EditorToolbarMetrics.swift */; };
+		A10000000000000000000036 /* Presentation/Editor/ToolbarCommandButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000036 /* Presentation/Editor/ToolbarCommandButton.swift */; };
+		A10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift */; };
+		A10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift */; };
+		A10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
 		A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* NoteEditorViewModelTests.swift */; };
 		A20000000000000000000005 /* CanvasViewportConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */; };
+		A20000000000000000000006 /* PageTurnIntentResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000007 /* PageTurnIntentResolverTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,12 +113,35 @@
 		B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/CanvasViewportConfiguration.swift; sourceTree = "<group>"; };
 		B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorDrawingTool.swift; sourceTree = "<group>"; };
 		B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorToolPaletteView.swift; sourceTree = "<group>"; };
+		B10000000000000000000023 /* Presentation/Editor/EditorToolState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorToolState.swift; sourceTree = "<group>"; };
+		B10000000000000000000024 /* Presentation/Editor/EditorToolFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorToolFactory.swift; sourceTree = "<group>"; };
+		B10000000000000000000025 /* Presentation/Editor/EditorToolButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorToolButton.swift; sourceTree = "<group>"; };
+		B10000000000000000000026 /* Presentation/Editor/ToolPresetSettingsPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolPresetSettingsPanel.swift; sourceTree = "<group>"; };
+		B10000000000000000000028 /* Presentation/Editor/EditorTopChromeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorTopChromeView.swift; sourceTree = "<group>"; };
+		B10000000000000000000029 /* Presentation/Editor/FountainPenToolObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/FountainPenToolObjectView.swift; sourceTree = "<group>"; };
+		B1000000000000000000002A /* Presentation/Editor/ToolObjects/EditorToolObjectChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolObjects/EditorToolObjectChrome.swift; sourceTree = "<group>"; };
+		B1000000000000000000002B /* Presentation/Editor/ToolObjects/PenToolObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolObjects/PenToolObjectView.swift; sourceTree = "<group>"; };
+		B1000000000000000000002C /* Presentation/Editor/ToolObjects/PencilToolObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolObjects/PencilToolObjectView.swift; sourceTree = "<group>"; };
+		B1000000000000000000002D /* Presentation/Editor/ToolObjects/MarkerToolObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolObjects/MarkerToolObjectView.swift; sourceTree = "<group>"; };
+		B1000000000000000000002E /* Presentation/Editor/ToolObjects/EraserToolObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolObjects/EraserToolObjectView.swift; sourceTree = "<group>"; };
+		B1000000000000000000002F /* Presentation/Editor/ToolObjects/LassoToolObjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolObjects/LassoToolObjectView.swift; sourceTree = "<group>"; };
+		B10000000000000000000030 /* Presentation/Editor/ToolSettings/ToolKindSelectionGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolSettings/ToolKindSelectionGrid.swift; sourceTree = "<group>"; };
+		B10000000000000000000031 /* Presentation/Editor/ToolSettings/ToolKindObjectPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolSettings/ToolKindObjectPreview.swift; sourceTree = "<group>"; };
+		B10000000000000000000032 /* Presentation/Editor/ToolSettings/InkWidthControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolSettings/InkWidthControl.swift; sourceTree = "<group>"; };
+		B10000000000000000000033 /* Presentation/Editor/ToolSettings/InkColorPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolSettings/InkColorPaletteView.swift; sourceTree = "<group>"; };
+		B10000000000000000000034 /* Presentation/Canvas/PageTurnIntentResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Canvas/PageTurnIntentResolver.swift; sourceTree = "<group>"; };
+		B10000000000000000000035 /* Presentation/Editor/EditorToolbarMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorToolbarMetrics.swift; sourceTree = "<group>"; };
+		B10000000000000000000036 /* Presentation/Editor/ToolbarCommandButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolbarCommandButton.swift; sourceTree = "<group>"; };
+		B10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/PageTemplateToolButton.swift; sourceTree = "<group>"; };
+		B10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/PageTemplatePickerPopover.swift; sourceTree = "<group>"; };
+		B10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000004 /* LibraryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/LibraryViewModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000005 /* NoteEditorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/NoteEditorViewModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/CanvasViewportConfigurationTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000007 /* PageTurnIntentResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/PageTurnIntentResolverTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,11 +191,33 @@
 				B10000000000000000000011 /* Presentation/Editor/NoteEditorViewModel.swift */,
 				B10000000000000000000012 /* Presentation/Editor/NoteEditorView.swift */,
 				B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */,
+				B10000000000000000000023 /* Presentation/Editor/EditorToolState.swift */,
+				B10000000000000000000024 /* Presentation/Editor/EditorToolFactory.swift */,
 				B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */,
+				B10000000000000000000035 /* Presentation/Editor/EditorToolbarMetrics.swift */,
+				B10000000000000000000036 /* Presentation/Editor/ToolbarCommandButton.swift */,
+				B10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift */,
+				B10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift */,
+				B10000000000000000000025 /* Presentation/Editor/EditorToolButton.swift */,
+				B10000000000000000000026 /* Presentation/Editor/ToolPresetSettingsPanel.swift */,
+				B10000000000000000000028 /* Presentation/Editor/EditorTopChromeView.swift */,
+				B10000000000000000000029 /* Presentation/Editor/FountainPenToolObjectView.swift */,
+				B1000000000000000000002A /* Presentation/Editor/ToolObjects/EditorToolObjectChrome.swift */,
+				B1000000000000000000002B /* Presentation/Editor/ToolObjects/PenToolObjectView.swift */,
+				B1000000000000000000002C /* Presentation/Editor/ToolObjects/PencilToolObjectView.swift */,
+				B1000000000000000000002D /* Presentation/Editor/ToolObjects/MarkerToolObjectView.swift */,
+				B1000000000000000000002E /* Presentation/Editor/ToolObjects/EraserToolObjectView.swift */,
+				B1000000000000000000002F /* Presentation/Editor/ToolObjects/LassoToolObjectView.swift */,
+				B10000000000000000000030 /* Presentation/Editor/ToolSettings/ToolKindSelectionGrid.swift */,
+				B10000000000000000000031 /* Presentation/Editor/ToolSettings/ToolKindObjectPreview.swift */,
+				B10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift */,
+				B10000000000000000000032 /* Presentation/Editor/ToolSettings/InkWidthControl.swift */,
+				B10000000000000000000033 /* Presentation/Editor/ToolSettings/InkColorPaletteView.swift */,
 				B10000000000000000000013 /* Presentation/Canvas/PageCanvasView.swift */,
 				B10000000000000000000014 /* Presentation/Canvas/PencilPageContainerView.swift */,
 				B10000000000000000000015 /* Presentation/Canvas/PaperTemplateUIView.swift */,
 				B1000000000000000000001F /* Presentation/Canvas/CanvasViewportConfiguration.swift */,
+				B10000000000000000000034 /* Presentation/Canvas/PageTurnIntentResolver.swift */,
 				B10000000000000000000016 /* Presentation/Library/LibraryViewModel.swift */,
 				B10000000000000000000017 /* Presentation/Library/LibraryView.swift */,
 				B10000000000000000000018 /* Presentation/Library/LibraryDesign.swift */,
@@ -181,6 +249,7 @@
 				B20000000000000000000004 /* LibraryViewModelTests.swift */,
 				B20000000000000000000005 /* NoteEditorViewModelTests.swift */,
 				B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */,
+				B20000000000000000000007 /* PageTurnIntentResolverTests.swift */,
 			);
 			path = SignotesTests;
 			sourceTree = "<group>";
@@ -301,10 +370,32 @@
 				A10000000000000000000010 /* Presentation/Editor/NoteEditorViewModel.swift in Sources */,
 				A10000000000000000000011 /* Presentation/Editor/NoteEditorView.swift in Sources */,
 				A10000000000000000000020 /* Presentation/Editor/EditorDrawingTool.swift in Sources */,
+				A10000000000000000000022 /* Presentation/Editor/EditorToolState.swift in Sources */,
+				A10000000000000000000023 /* Presentation/Editor/EditorToolFactory.swift in Sources */,
 				A10000000000000000000021 /* Presentation/Editor/EditorToolPaletteView.swift in Sources */,
+				A10000000000000000000035 /* Presentation/Editor/EditorToolbarMetrics.swift in Sources */,
+				A10000000000000000000036 /* Presentation/Editor/ToolbarCommandButton.swift in Sources */,
+				A10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift in Sources */,
+				A10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift in Sources */,
+				A10000000000000000000024 /* Presentation/Editor/EditorToolButton.swift in Sources */,
+				A10000000000000000000025 /* Presentation/Editor/ToolPresetSettingsPanel.swift in Sources */,
+				A10000000000000000000027 /* Presentation/Editor/EditorTopChromeView.swift in Sources */,
+				A10000000000000000000028 /* Presentation/Editor/FountainPenToolObjectView.swift in Sources */,
+				A1000000000000000000002A /* Presentation/Editor/ToolObjects/EditorToolObjectChrome.swift in Sources */,
+				A1000000000000000000002B /* Presentation/Editor/ToolObjects/PenToolObjectView.swift in Sources */,
+				A1000000000000000000002C /* Presentation/Editor/ToolObjects/PencilToolObjectView.swift in Sources */,
+				A1000000000000000000002D /* Presentation/Editor/ToolObjects/MarkerToolObjectView.swift in Sources */,
+				A1000000000000000000002E /* Presentation/Editor/ToolObjects/EraserToolObjectView.swift in Sources */,
+				A1000000000000000000002F /* Presentation/Editor/ToolObjects/LassoToolObjectView.swift in Sources */,
+				A10000000000000000000030 /* Presentation/Editor/ToolSettings/ToolKindSelectionGrid.swift in Sources */,
+				A10000000000000000000031 /* Presentation/Editor/ToolSettings/ToolKindObjectPreview.swift in Sources */,
+				A10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift in Sources */,
+				A10000000000000000000032 /* Presentation/Editor/ToolSettings/InkWidthControl.swift in Sources */,
+				A10000000000000000000033 /* Presentation/Editor/ToolSettings/InkColorPaletteView.swift in Sources */,
 				A10000000000000000000012 /* Presentation/Canvas/PageCanvasView.swift in Sources */,
 				A10000000000000000000013 /* Presentation/Canvas/PencilPageContainerView.swift in Sources */,
 				A10000000000000000000014 /* Presentation/Canvas/PaperTemplateUIView.swift in Sources */,
+				A10000000000000000000034 /* Presentation/Canvas/PageTurnIntentResolver.swift in Sources */,
 				A10000000000000000000015 /* Presentation/Library/LibraryViewModel.swift in Sources */,
 				A10000000000000000000016 /* Presentation/Library/LibraryView.swift in Sources */,
 				A10000000000000000000017 /* Presentation/Library/LibraryDesign.swift in Sources */,
@@ -327,6 +418,7 @@
 				A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */,
 				A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */,
 				A20000000000000000000005 /* CanvasViewportConfigurationTests.swift in Sources */,
+				A20000000000000000000006 /* PageTurnIntentResolverTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

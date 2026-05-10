@@ -9,7 +9,7 @@ struct CanvasViewportConfiguration: Equatable {
     init(
         pageSize: CGSize,
         viewportSize: CGSize,
-        horizontalPadding: CGFloat = 48,
+        horizontalPadding: CGFloat = 160,
         maxZoomScale: CGFloat = 8
     ) {
         self.pageSize = pageSize

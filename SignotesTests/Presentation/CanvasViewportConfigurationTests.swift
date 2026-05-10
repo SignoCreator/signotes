@@ -6,12 +6,22 @@ final class CanvasViewportConfigurationTests: XCTestCase {
     func testFitToWidthScaleUsesViewportWidthMinusPadding() {
         let configuration = CanvasViewportConfiguration(
             pageSize: CGSize(width: 794, height: 1123),
-            viewportSize: CGSize(width: 842, height: 1190),
-            horizontalPadding: 48
+            viewportSize: CGSize(width: 890, height: 1190),
+            horizontalPadding: 96
         )
 
         XCTAssertEqual(configuration.fitToWidthScale, 1, accuracy: 0.000_001)
         XCTAssertEqual(configuration.minimumZoomScale, 1, accuracy: 0.000_001)
+    }
+
+    func testDefaultFitLeavesVisiblePageMargin() {
+        let configuration = CanvasViewportConfiguration(
+            pageSize: CGSize(width: 794, height: 1123),
+            viewportSize: CGSize(width: 842, height: 1190)
+        )
+
+        XCTAssertEqual(configuration.fitToWidthScale, 682.0 / 794.0, accuracy: 0.000_001)
+        XCTAssertLessThan(configuration.minimumZoomScale, 1)
     }
 
     func testZoomScaleIsClampedBetweenFitWidthAndMaximum() {

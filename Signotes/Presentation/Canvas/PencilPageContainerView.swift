@@ -1,23 +1,28 @@
 import PencilKit
 import UIKit
 
-final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewDelegate {
+final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewDelegate, UIGestureRecognizerDelegate {
     var onDrawingChange: (@MainActor (PKDrawing) -> Void)?
+    var onPageTurn: (@MainActor (PageTurnDirection) -> Void)?
+    var onCommandAvailabilityChange: (@MainActor (EditorCanvasCommandAvailability) -> Void)?
 
     private let paperScrollView = UIScrollView()
     private let paperView = PaperTemplateUIView()
     private let canvasView = PKCanvasView()
+    private let pageTurnPanGesture = UIPanGestureRecognizer()
+    private let pageTurnIntentResolver = PageTurnIntentResolver()
     private var drawingResourceID: String?
     private var pageSize: CGSize = .zero
     private var lastBoundsSize: CGSize = .zero
     private var lastResetZoomToken = 0
     private var hasConfiguredZoom = false
-    private var appliedToolKind: EditorDrawingTool?
+    private var appliedToolPreset: DrawingToolPreset?
     private var isApplyingDrawingProgrammatically = false
     private var appliedRenderingScale: CGFloat = 0
     private var viewportConfiguration: CanvasViewportConfiguration?
     private var pendingDrawingChange: PKDrawing?
     private var drawingChangeWorkItem: DispatchWorkItem?
+    private var lastPageTurnDeliveryTime: TimeInterval = 0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -34,14 +39,15 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         pageSize: CGSize,
         template: PageTemplate,
         initialDrawing: PKDrawing,
-        toolKind: EditorDrawingTool,
+        toolPreset: DrawingToolPreset,
         resetZoomToken: Int
     ) {
         updateDrawingIfNeeded(initialDrawing, resourceID: drawingResourceID)
         updatePageSize(pageSize)
         paperView.template = template
-        applyToolIfNeeded(toolKind)
+        applyToolIfNeeded(toolPreset)
         configureZoomIfNeeded(resetZoomToken: resetZoomToken)
+        notifyCommandAvailabilitySoon()
     }
 
     override func layoutSubviews() {
@@ -78,6 +84,22 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         updateRenderingScale(force: true)
     }
 
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        guard scrollView === canvasView, !decelerate else {
+            return
+        }
+
+        deliverPageTurnIntentIfNeeded()
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        guard scrollView === canvasView else {
+            return
+        }
+
+        deliverPageTurnIntentIfNeeded()
+    }
+
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
         guard !isApplyingDrawingProgrammatically else {
             return
@@ -85,6 +107,7 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
 
         pendingDrawingChange = canvasView.drawing
         scheduleDrawingChangeDelivery()
+        notifyCommandAvailabilitySoon()
     }
 
     func flushPendingDrawingChange() {
@@ -93,11 +116,22 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         deliverPendingDrawingChange()
     }
 
+    func applyCanvasCommand(_ command: EditorCanvasCommand) {
+        switch command {
+        case .undo:
+            canvasView.undoManager?.undo()
+        case .redo:
+            canvasView.undoManager?.redo()
+        }
+        notifyCommandAvailabilitySoon()
+    }
+
     private func setup() {
         backgroundColor = .clear
 
         setupPaperScrollView()
         setupCanvasView()
+        setupPageTurnGesture()
     }
 
     private func setupPaperScrollView() {
@@ -152,6 +186,40 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         ])
     }
 
+    private func setupPageTurnGesture() {
+        pageTurnPanGesture.addTarget(self, action: #selector(handlePageTurnPanGesture(_:)))
+        pageTurnPanGesture.cancelsTouchesInView = false
+        pageTurnPanGesture.delaysTouchesBegan = false
+        pageTurnPanGesture.delaysTouchesEnded = false
+        pageTurnPanGesture.maximumNumberOfTouches = 1
+        pageTurnPanGesture.delegate = self
+        addGestureRecognizer(pageTurnPanGesture)
+    }
+
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard gestureRecognizer === pageTurnPanGesture else {
+            return true
+        }
+
+        let velocity = pageTurnPanGesture.velocity(in: self)
+        return abs(velocity.x) > abs(velocity.y) * 1.2
+    }
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        gestureRecognizer === pageTurnPanGesture || otherGestureRecognizer === pageTurnPanGesture
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard gestureRecognizer === pageTurnPanGesture else {
+            return true
+        }
+
+        return touch.type == .direct
+    }
+
     private func updatePageSize(_ pageSize: CGSize) {
         guard self.pageSize != pageSize else {
             return
@@ -176,13 +244,13 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         isApplyingDrawingProgrammatically = false
     }
 
-    private func applyToolIfNeeded(_ toolKind: EditorDrawingTool) {
-        guard appliedToolKind != toolKind else {
+    private func applyToolIfNeeded(_ toolPreset: DrawingToolPreset) {
+        guard appliedToolPreset != toolPreset else {
             return
         }
 
-        canvasView.tool = toolKind.makeTool()
-        appliedToolKind = toolKind
+        canvasView.tool = EditorToolFactory.makeTool(for: toolPreset)
+        appliedToolPreset = toolPreset
         canvasView.becomeFirstResponder()
     }
 
@@ -281,7 +349,60 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         onDrawingChange?(pendingDrawingChange)
     }
 
+    private func notifyCommandAvailabilitySoon() {
+        DispatchQueue.main.async { [weak self] in
+            self?.deliverCommandAvailability()
+        }
+    }
+
+    private func deliverCommandAvailability() {
+        let undoManager = canvasView.undoManager
+        onCommandAvailabilityChange?(
+            EditorCanvasCommandAvailability(
+                canUndo: undoManager?.canUndo ?? false,
+                canRedo: undoManager?.canRedo ?? false
+            )
+        )
+    }
+
     private var clampedCanvasZoomScale: CGFloat {
         viewportConfiguration?.clampedZoomScale(canvasView.zoomScale) ?? canvasView.zoomScale
+    }
+
+    @objc private func handlePageTurnPanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
+        guard gestureRecognizer.state == .ended else {
+            return
+        }
+
+        deliverPageTurnIntentIfNeeded(translation: gestureRecognizer.translation(in: self))
+    }
+
+    private func deliverPageTurnIntentIfNeeded() {
+        deliverPageTurnIntentIfNeeded(translation: canvasView.panGestureRecognizer.translation(in: self))
+    }
+
+    private func deliverPageTurnIntentIfNeeded(translation: CGPoint) {
+        guard let direction = pageTurnIntentResolver.direction(
+            translation: translation,
+            contentOffsetX: canvasView.contentOffset.x,
+            contentSize: canvasView.contentSize,
+            boundsSize: canvasView.bounds.size,
+            contentInset: canvasView.contentInset,
+            zoomScale: clampedCanvasZoomScale
+        ) else {
+            return
+        }
+
+        deliverPageTurn(direction)
+    }
+
+    private func deliverPageTurn(_ direction: PageTurnDirection) {
+        let now = Date().timeIntervalSinceReferenceDate
+        guard now - lastPageTurnDeliveryTime > 0.45 else {
+            return
+        }
+
+        lastPageTurnDeliveryTime = now
+        onPageTurn?(direction)
     }
 }

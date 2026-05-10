@@ -1,4 +1,4 @@
-enum DrawingToolKind: String, Codable, CaseIterable, Identifiable, Equatable, Sendable {
+enum DrawingToolKind: String, Codable, CaseIterable, Identifiable, Equatable, Hashable, Sendable {
     case fountainPen
     case pen
     case pencil
@@ -7,5 +7,13 @@ enum DrawingToolKind: String, Codable, CaseIterable, Identifiable, Equatable, Se
     case lasso
 
     var id: String { rawValue }
-}
 
+    var isWritingTool: Bool {
+        switch self {
+        case .fountainPen, .pen, .pencil, .marker:
+            true
+        case .eraser, .lasso:
+            false
+        }
+    }
+}

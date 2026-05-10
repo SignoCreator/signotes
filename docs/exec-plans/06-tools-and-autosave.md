@@ -1,74 +1,49 @@
-# Exec Plan 06: Tools and Autosave
+# Exec Plan 06: Custom Tools And Autosave
 
 ## Objective
 
-Add practical PencilKit tool switching and throttled autosave suitable for real note-taking.
+Replace the current minimal tool switcher with a custom, scalable editor toolbar built on PencilKit tools, while keeping autosave reliable and handwriting low-latency.
 
 ## Context
 
-PencilKit includes system inking, eraser, lasso, and a configurable tool picker. The MVP should rely on native PencilKit drawing primitives, but the editor tool UI is fully custom: the app palette is the source of truth and the native PencilKit picker must remain hidden.
+This is now a multi-milestone track. The editor must not grow one large view/model that owns every tool detail. Shared concepts go into a tool core; each tool family gets its own milestone and acceptance criteria.
+
+PencilKit remains the MVP rendering engine. A proprietary renderer is intentionally out of scope for this track.
 
 Relevant references:
 
-- Configuring the PencilKit tool picker: https://developer.apple.com/documentation/PencilKit/configuring-the-pencilkit-tool-picker
+- PencilKit: https://developer.apple.com/documentation/pencilkit
+- `PKInkingTool`: https://developer.apple.com/documentation/pencilkit/pkinkingtool-swift.struct
+- `PKInkingTool.width`: https://developer.apple.com/documentation/pencilkit/pkinkingtoolreference/width
 - `PKEraserTool`: https://developer.apple.com/documentation/pencilkit/pkerasertool
 - `PKLassoTool`: https://developer.apple.com/documentation/pencilkit/pklassotool
 - Apple Pencil HIG: https://developer.apple.com/design/human-interface-guidelines/apple-pencil-and-scribble
 
-## Constraints
+## Plan Split
+
+Execute in this order:
+
+1. `06a-tool-core.md`
+2. `06b-fountain-pen.md`
+3. `06c-standard-ink-tools.md`
+4. `06d-eraser-and-lasso.md`
+5. `06e-custom-toolbar-ui.md`
+6. `06f-tool-persistence-and-qa.md`
+
+## Global Constraints
 
 - Fountain pen remains the default writing tool.
 - Use native PencilKit tools where possible.
 - Do not show the native `PKToolPicker` in the MVP editor.
-- Custom editor palette owns visible tool switching.
+- Custom editor toolbar owns visible tool switching and tool settings.
 - Autosave must not block active drawing.
-- Lasso is included only if it integrates cleanly with current `PKCanvasView` selection behavior.
+- Tool switching must not recreate `PKCanvasView`.
+- No custom renderer work in this track.
 
-## Tool Presets
+## Definition Of Done
 
-- Fountain pen: `PKInkingTool(.fountainPen, ...)`.
-- Pen: `PKInkingTool(.pen, ...)`.
-- Pencil: `PKInkingTool(.pencil, ...)`.
-- Marker: `PKInkingTool(.marker, ...)`.
-- Eraser: `PKEraserTool`.
-- Lasso: `PKLassoTool`.
-
-## Tasks
-
-1. Introduce a tool state model in Presentation.
-2. Apply the selected custom palette tool directly to `PKCanvasView.tool`.
-3. Ensure native fountain pen preset is selected by default.
-4. Add color and width persistence for inking tools if using custom presets.
-5. Add an autosave coordinator with throttling/debouncing.
-6. Save final drawing when the view disappears or app moves to background.
-7. Show non-blocking save errors.
-8. Add lightweight instrumentation logs for save timing during development.
-
-## Acceptance Criteria
-
-- User can switch among fountain pen, pen, pencil, marker, and eraser.
-- Lasso works or is explicitly hidden until it works correctly.
-- Native PencilKit tool picker is not visible while writing.
-- Autosave preserves drawing after relaunch.
-- Autosave does not cause visible stutter during writing.
-- Custom palette remains usable and does not cover the writing area in an unusable way.
-
-## Tests
-
-- Device: write with each tool.
-- Device: switch tools mid-session and continue writing.
-- Device: force close after a recent stroke, relaunch, confirm save behavior.
-- Simulator: custom palette appears without crashing.
-- Manual timing: long continuous writing does not freeze UI.
-
-## Risks
-
-- Saving every `canvasViewDrawingDidChange` event can be too frequent.
-- Custom palette state can desync if multiple canvases are introduced later without a clear editor-level source of truth.
-- Some PencilKit picker customization may require iPadOS 18 availability guards.
-
-## Definition of Done
-
-- Tool switching is usable.
+- Tool model, toolbar UI, tool-specific settings, and autosave have clear ownership.
+- User can write with fountain pen, pen, pencil, marker, eraser, and lasso where supported.
+- The toolbar is fully custom and does not depend on `PKToolPicker`.
 - Fountain pen is the default.
-- Autosave is reliable and does not degrade writing feel.
+- Autosave remains reliable and does not degrade writing feel.

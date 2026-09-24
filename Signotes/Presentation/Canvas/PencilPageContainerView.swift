@@ -4,6 +4,7 @@ import UIKit
 final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewDelegate, UIGestureRecognizerDelegate {
     var onDrawingChange: (@MainActor (PKDrawing) -> Void)?
     var onPageTurn: (@MainActor (PageTurnDirection) -> Void)?
+    var onPageTurnDragUpdate: (@MainActor (PageTurnDragUpdate) -> Void)?
     var onCommandAvailabilityChange: (@MainActor (EditorCanvasCommandAvailability) -> Void)?
 
     private let paperScrollView = UIScrollView()
@@ -23,6 +24,8 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
     private var pendingDrawingChange: PKDrawing?
     private var drawingChangeWorkItem: DispatchWorkItem?
     private var lastPageTurnDeliveryTime: TimeInterval = 0
+    private var activeInteractivePageTurnDirection: PageTurnDirection?
+    private var pageTurnAvailability = PageTurnAvailability()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -40,8 +43,10 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         template: PageTemplate,
         initialDrawing: PKDrawing,
         toolPreset: DrawingToolPreset,
+        pageTurnAvailability: PageTurnAvailability,
         resetZoomToken: Int
     ) {
+        self.pageTurnAvailability = pageTurnAvailability
         updateDrawingIfNeeded(initialDrawing, resourceID: drawingResourceID)
         updatePageSize(pageSize)
         paperView.template = template
@@ -82,22 +87,6 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         }
 
         updateRenderingScale(force: true)
-    }
-
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        guard scrollView === canvasView, !decelerate else {
-            return
-        }
-
-        deliverPageTurnIntentIfNeeded()
-    }
-
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        guard scrollView === canvasView else {
-            return
-        }
-
-        deliverPageTurnIntentIfNeeded()
     }
 
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
@@ -171,7 +160,7 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         // Elastic zoom desynchronizes PencilKit's rendered ink from the mirrored paper background at min/max scale.
         canvasView.bouncesZoom = false
         canvasView.alwaysBounceVertical = true
-        canvasView.alwaysBounceHorizontal = true
+        canvasView.alwaysBounceHorizontal = false
         canvasView.keyboardDismissMode = .interactive
         canvasView.delaysContentTouches = false
         canvasView.maximumSupportedContentVersion = .version3
@@ -337,7 +326,7 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
             self?.deliverPendingDrawingChange()
         }
         drawingChangeWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: workItem)
+        DispatchQueue.main.async(execute: workItem)
     }
 
     private func deliverPendingDrawingChange() {
@@ -369,40 +358,123 @@ final class PencilPageContainerView: UIView, UIScrollViewDelegate, PKCanvasViewD
         viewportConfiguration?.clampedZoomScale(canvasView.zoomScale) ?? canvasView.zoomScale
     }
 
+    private var isAtBaseZoomScale: Bool {
+        guard let viewportConfiguration else {
+            return true
+        }
+
+        return abs(clampedCanvasZoomScale - viewportConfiguration.minimumZoomScale) < 0.01
+    }
+
     @objc private func handlePageTurnPanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
-        guard gestureRecognizer.state == .ended else {
+        let translation = gestureRecognizer.translation(in: self)
+
+        switch gestureRecognizer.state {
+        case .began, .changed:
+            updateInteractivePageTurn(translation: translation)
+        case .ended:
+            let deliveredPageTurn = deliverPageTurnIntentIfNeeded(translation: translation)
+            if !deliveredPageTurn {
+                cancelInteractivePageTurn()
+            }
+        case .cancelled, .failed:
+            cancelInteractivePageTurn()
+        default:
+            break
+        }
+    }
+
+    private func updateInteractivePageTurn(translation: CGPoint) {
+        if let activeInteractivePageTurnDirection {
+            onPageTurnDragUpdate?(
+                .changed(
+                    direction: activeInteractivePageTurnDirection,
+                    translationX: directionalTranslationX(
+                        translation.x,
+                        for: activeInteractivePageTurnDirection
+                    )
+                )
+            )
             return
         }
 
-        deliverPageTurnIntentIfNeeded(translation: gestureRecognizer.translation(in: self))
-    }
-
-    private func deliverPageTurnIntentIfNeeded() {
-        deliverPageTurnIntentIfNeeded(translation: canvasView.panGestureRecognizer.translation(in: self))
-    }
-
-    private func deliverPageTurnIntentIfNeeded(translation: CGPoint) {
-        guard let direction = pageTurnIntentResolver.direction(
+        guard let direction = pageTurnIntentResolver.interactiveDirection(
             translation: translation,
+            context: pageTurnGestureContext
+        ) else {
+            return
+        }
+
+        beginInteractivePageTurn(direction)
+        onPageTurnDragUpdate?(
+            .changed(
+                direction: direction,
+                translationX: directionalTranslationX(translation.x, for: direction)
+            )
+        )
+    }
+
+    private func beginInteractivePageTurn(_ direction: PageTurnDirection) {
+        guard activeInteractivePageTurnDirection == nil else {
+            return
+        }
+
+        activeInteractivePageTurnDirection = direction
+    }
+
+    private func cancelInteractivePageTurn() {
+        guard activeInteractivePageTurnDirection != nil else {
+            return
+        }
+
+        activeInteractivePageTurnDirection = nil
+        onPageTurnDragUpdate?(.cancelled)
+    }
+
+    @discardableResult
+    private func deliverPageTurnIntentIfNeeded(translation: CGPoint) -> Bool {
+        guard let direction = pageTurnIntentResolver.committedDirection(
+            translation: translation,
+            activeDirection: activeInteractivePageTurnDirection,
+            context: pageTurnGestureContext
+        ) else {
+            return false
+        }
+
+        return deliverPageTurn(direction)
+    }
+
+    private var pageTurnGestureContext: PageTurnGestureContext {
+        PageTurnGestureContext(
+            availability: pageTurnAvailability,
+            isAtBaseZoomScale: isAtBaseZoomScale,
             contentOffsetX: canvasView.contentOffset.x,
             contentSize: canvasView.contentSize,
             boundsSize: canvasView.bounds.size,
             contentInset: canvasView.contentInset,
             zoomScale: clampedCanvasZoomScale
-        ) else {
-            return
-        }
-
-        deliverPageTurn(direction)
+        )
     }
 
-    private func deliverPageTurn(_ direction: PageTurnDirection) {
+    @discardableResult
+    private func deliverPageTurn(_ direction: PageTurnDirection) -> Bool {
         let now = Date().timeIntervalSinceReferenceDate
         guard now - lastPageTurnDeliveryTime > 0.45 else {
-            return
+            return false
         }
 
         lastPageTurnDeliveryTime = now
+        activeInteractivePageTurnDirection = nil
         onPageTurn?(direction)
+        return true
+    }
+
+    private func directionalTranslationX(_ translationX: CGFloat, for direction: PageTurnDirection) -> CGFloat {
+        switch direction {
+        case .previous:
+            max(translationX, 0)
+        case .next:
+            min(translationX, 0)
+        }
     }
 }

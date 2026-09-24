@@ -4,10 +4,11 @@ import UIKit
 
 @MainActor
 final class NoteEditorViewModel: ObservableObject {
-    @Published private(set) var title = "Nota"
+    @Published private(set) var title = "Note"
     @Published private(set) var page: NotePage?
     @Published private(set) var pages: [NotePage] = []
     @Published private(set) var drawing = PKDrawing()
+    @Published private(set) var pageOverviewPreviewGeneration = 0
     @Published var toolState = EditorToolState()
     @Published var errorMessage: String?
 
@@ -27,6 +28,22 @@ final class NoteEditorViewModel: ObservableObject {
         return pageIndex > 0
     }
 
+    var previousPage: NotePage? {
+        guard let pageIndex = currentPageIndex, pageIndex > 0 else {
+            return nil
+        }
+
+        return pages[pageIndex - 1]
+    }
+
+    var nextPage: NotePage? {
+        guard let pageIndex = currentPageIndex, pageIndex < pages.count - 1 else {
+            return nil
+        }
+
+        return pages[pageIndex + 1]
+    }
+
     var tool: any PKTool {
         EditorToolFactory.makeTool(for: toolState.selectedPreset)
     }
@@ -44,20 +61,26 @@ final class NoteEditorViewModel: ObservableObject {
     private let notesRepository: NotesRepository
     private let drawingRepository: DrawingRepository
     private let autosaveDelay: Duration
+    private let pageOverviewPreviewRefreshDelay: Duration
     private var pendingDrawing: PKDrawing?
     private var autosaveTask: Task<Void, Never>?
+    private var pageOverviewPreviewRefreshTask: Task<Void, Never>?
     private var currentPageID: UUID?
+    private var isPageOverviewPresented = false
+    private var previewStates: [UUID: PagePreviewState] = [:]
 
     init(
         noteID: UUID,
         notesRepository: NotesRepository,
         drawingRepository: DrawingRepository,
-        autosaveDelay: Duration = .milliseconds(700)
+        autosaveDelay: Duration = .milliseconds(700),
+        pageOverviewPreviewRefreshDelay: Duration = .milliseconds(250)
     ) {
         self.noteID = noteID
         self.notesRepository = notesRepository
         self.drawingRepository = drawingRepository
         self.autosaveDelay = autosaveDelay
+        self.pageOverviewPreviewRefreshDelay = pageOverviewPreviewRefreshDelay
     }
 
     static func defaultWritingTool() -> PKInkingTool {
@@ -86,6 +109,10 @@ final class NoteEditorViewModel: ObservableObject {
 
     func save(_ drawing: PKDrawing) {
         pendingDrawing = drawing
+        if let page {
+            cachePreviewDrawing(drawing, for: page.id, incrementRevision: true)
+        }
+        schedulePageOverviewPreviewRefreshIfNeeded()
         scheduleAutosave()
     }
 
@@ -125,7 +152,7 @@ final class NoteEditorViewModel: ObservableObject {
         }
 
         await createToolPreset(
-            name: "\(preset.name) copia",
+            name: "\(preset.name) copy",
             kind: preset.kind,
             colorHex: preset.colorHex,
             width: preset.width
@@ -180,11 +207,125 @@ final class NoteEditorViewModel: ObservableObject {
     }
 
     func goToPreviousPage() async {
-        guard let pageIndex = currentPageIndex, pageIndex > 0 else {
+        guard let previousPage else {
             return
         }
 
-        await switchToPage(at: pageIndex - 1)
+        await goToPage(id: previousPage.id)
+    }
+
+    func goToPage(id pageID: UUID) async {
+        await flushPendingDrawing()
+
+        do {
+            let library = try await notesRepository.loadLibrary()
+            pages = library.pages(in: noteID)
+            guard let page = pages.first(where: { $0.id == pageID }) else {
+                return
+            }
+
+            try await selectPage(page)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func appendPageAfterCurrent() async {
+        await appendPageAndSelect()
+    }
+
+    func appendPageAtEnd() async {
+        await flushPendingDrawing()
+
+        do {
+            var library = try await notesRepository.loadLibrary()
+            let newPage = try library.appendPage(toNoteID: noteID, template: page?.template ?? .grid)
+            try await notesRepository.saveLibrary(library)
+
+            pages = library.pages(in: noteID)
+            try await selectPage(newPage)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func insertPage(before pageID: UUID) async {
+        await insertPageAndSelect { library in
+            try library.insertPage(before: pageID)
+        }
+    }
+
+    func insertPage(after pageID: UUID) async {
+        await insertPageAndSelect { library in
+            try library.insertPage(after: pageID)
+        }
+    }
+
+    func duplicatePage(after pageID: UUID) async {
+        await flushPendingDrawing()
+
+        do {
+            var library = try await notesRepository.loadLibrary()
+            guard let sourcePage = library.page(id: pageID) else {
+                throw LibraryMutationError.pageNotFound(pageID)
+            }
+
+            let duplicatedPage = try library.duplicatePage(after: pageID)
+            if let sourceData = try await drawingRepository.loadDrawingData(resourceID: sourcePage.drawingResourceID) {
+                try await drawingRepository.saveDrawingData(sourceData, resourceID: duplicatedPage.drawingResourceID)
+            }
+
+            try await notesRepository.saveLibrary(library)
+            pages = library.pages(in: noteID)
+            try await selectPage(duplicatedPage)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func deletePage(id pageID: UUID) async {
+        await flushPendingDrawing()
+
+        do {
+            var library = try await notesRepository.loadLibrary()
+            let deletion = try library.deletePage(id: pageID)
+            try await notesRepository.saveLibrary(library)
+            do {
+                try await drawingRepository.deleteDrawingData(resourceID: deletion.drawingResourceID)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+
+            let selectedPageID = currentPageID == pageID ? deletion.preferredSelectionPageID : currentPageID
+            previewStates[pageID] = nil
+            pages = library.pages(in: noteID)
+
+            if let selectedPageID, let selectedPage = pages.first(where: { $0.id == selectedPageID }) {
+                try await selectPage(selectedPage)
+            } else if let firstPage = pages.first {
+                try await selectPage(firstPage)
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func movePage(id pageID: UUID, toIndex targetIndex: Int) async {
+        await flushPendingDrawing()
+
+        do {
+            var library = try await notesRepository.loadLibrary()
+            try library.movePage(id: pageID, toIndex: targetIndex)
+            try await notesRepository.saveLibrary(library)
+
+            pages = library.pages(in: noteID)
+            if let currentPageID, let currentPage = pages.first(where: { $0.id == currentPageID }) {
+                page = currentPage
+            }
+            await loadAdjacentPreviewDrawings()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     func goToNextPageOrCreate() async {
@@ -193,11 +334,42 @@ final class NoteEditorViewModel: ObservableObject {
         }
 
         if pageIndex < pages.count - 1 {
-            await switchToPage(at: pageIndex + 1)
+            await goToPage(id: pages[pageIndex + 1].id)
             return
         }
 
-        await appendPageAndSelect()
+        await appendPageAfterCurrent()
+    }
+
+    func previewDrawing(for page: NotePage?) -> PKDrawing {
+        guard let page else {
+            return PKDrawing()
+        }
+
+        return previewStates[page.id]?.drawing ?? PKDrawing()
+    }
+
+    func previewRevision(for page: NotePage?) -> Int {
+        guard let page else {
+            return 0
+        }
+
+        return previewStates[page.id]?.revision ?? 0
+    }
+
+    func loadPageOverviewPreviews() async {
+        await flushPendingDrawing()
+        await loadPreviewDrawings(for: pages, reloadExisting: true, incrementRevision: true)
+        pageOverviewPreviewGeneration += 1
+    }
+
+    func setPageOverviewPresented(_ isPresented: Bool) {
+        isPageOverviewPresented = isPresented
+
+        if !isPresented {
+            pageOverviewPreviewRefreshTask?.cancel()
+            pageOverviewPreviewRefreshTask = nil
+        }
     }
 
     private var currentPageIndex: Int? {
@@ -206,26 +378,6 @@ final class NoteEditorViewModel: ObservableObject {
         }
 
         return pages.firstIndex { $0.id == currentPageID }
-    }
-
-    private func switchToPage(at index: Int) async {
-        guard pages.indices.contains(index) else {
-            return
-        }
-
-        await flushPendingDrawing()
-
-        do {
-            let library = try await notesRepository.loadLibrary()
-            pages = library.pages(in: noteID)
-            guard pages.indices.contains(index) else {
-                return
-            }
-
-            try await selectPage(pages[index])
-        } catch {
-            errorMessage = error.localizedDescription
-        }
     }
 
     private func appendPageAndSelect() async {
@@ -244,6 +396,21 @@ final class NoteEditorViewModel: ObservableObject {
         }
     }
 
+    private func insertPageAndSelect(_ mutation: (inout NoteLibrarySnapshot) throws -> NotePage) async {
+        await flushPendingDrawing()
+
+        do {
+            var library = try await notesRepository.loadLibrary()
+            let newPage = try mutation(&library)
+            try await notesRepository.saveLibrary(library)
+
+            pages = library.pages(in: noteID)
+            try await selectPage(newPage)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     private func selectPage(_ page: NotePage) async throws {
         if let data = try await drawingRepository.loadDrawingData(resourceID: page.drawingResourceID) {
             drawing = try PKDrawing(data: data)
@@ -251,8 +418,61 @@ final class NoteEditorViewModel: ObservableObject {
             drawing = PKDrawing()
         }
 
+        cachePreviewDrawing(drawing, for: page.id, incrementRevision: false)
         currentPageID = page.id
         self.page = page
+        await loadAdjacentPreviewDrawings()
+    }
+
+    private func loadAdjacentPreviewDrawings() async {
+        await loadPreviewDrawings(for: [previousPage, nextPage].compactMap(\.self))
+    }
+
+    private func loadPreviewDrawings(
+        for pages: [NotePage],
+        reloadExisting: Bool = false,
+        incrementRevision: Bool = false
+    ) async {
+        for page in pages where reloadExisting || previewStates[page.id] == nil {
+            do {
+                if let data = try await drawingRepository.loadDrawingData(resourceID: page.drawingResourceID) {
+                    cachePreviewDrawing(try PKDrawing(data: data), for: page.id, incrementRevision: incrementRevision)
+                } else {
+                    cachePreviewDrawing(PKDrawing(), for: page.id, incrementRevision: incrementRevision)
+                }
+            } catch {
+                cachePreviewDrawing(PKDrawing(), for: page.id, incrementRevision: incrementRevision)
+            }
+        }
+    }
+
+    private func cachePreviewDrawing(_ drawing: PKDrawing, for pageID: UUID, incrementRevision: Bool) {
+        let currentRevision = previewStates[pageID]?.revision ?? 0
+        previewStates[pageID] = PagePreviewState(
+            drawing: drawing,
+            revision: incrementRevision ? currentRevision + 1 : currentRevision
+        )
+    }
+
+    private func schedulePageOverviewPreviewRefreshIfNeeded() {
+        guard isPageOverviewPresented else {
+            return
+        }
+
+        pageOverviewPreviewRefreshTask?.cancel()
+        pageOverviewPreviewRefreshTask = Task { [weak self, pageOverviewPreviewRefreshDelay] in
+            do {
+                try await Task.sleep(for: pageOverviewPreviewRefreshDelay)
+            } catch {
+                return
+            }
+
+            guard let self, !Task.isCancelled, self.isPageOverviewPresented else {
+                return
+            }
+
+            self.pageOverviewPreviewGeneration += 1
+        }
     }
 
     private func scheduleAutosave() {
@@ -267,4 +487,9 @@ final class NoteEditorViewModel: ObservableObject {
             await self?.flushPendingDrawing()
         }
     }
+}
+
+private struct PagePreviewState {
+    let drawing: PKDrawing
+    let revision: Int
 }

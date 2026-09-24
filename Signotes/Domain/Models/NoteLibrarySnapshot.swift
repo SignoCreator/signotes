@@ -139,7 +139,7 @@ extension NoteLibrarySnapshot {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let preset = DrawingToolPreset(
             id: id,
-            name: trimmedName.isEmpty ? "Nuovo strumento" : trimmedName,
+            name: trimmedName.isEmpty ? "New tool" : trimmedName,
             kind: kind,
             colorHex: colorHex,
             width: width
@@ -195,7 +195,7 @@ extension NoteLibrarySnapshot {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let folder = NotebookFolder(
             id: id,
-            name: trimmedName.isEmpty ? "Nuova cartella" : trimmedName,
+            name: trimmedName.isEmpty ? "New folder" : trimmedName,
             colorHex: colorHex
         )
 
@@ -237,7 +237,7 @@ extension NoteLibrarySnapshot {
         let note = NoteDocument(
             id: noteID,
             folderID: folderID,
-            title: trimmedTitle.isEmpty ? "Nuova lezione" : trimmedTitle,
+            title: trimmedTitle.isEmpty ? "New note" : trimmedTitle,
             colorHex: colorHex,
             pageIDs: [pageID],
             createdAt: now,
@@ -281,27 +281,86 @@ extension NoteLibrarySnapshot {
     }
 
     mutating func appendPage(toNoteID noteID: UUID, template: PageTemplate) throws -> NotePage {
-        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
-            throw LibraryMutationError.noteNotFound(noteID)
+        try insertPage(toNoteID: noteID, at: pages(in: noteID).count, template: template)
+    }
+
+    mutating func insertPage(before pageID: UUID, template: PageTemplate? = nil) throws -> NotePage {
+        let referencePage = try existingPage(id: pageID)
+        let insertionIndex = pages(in: referencePage.noteID).firstIndex { $0.id == pageID } ?? 0
+        return try insertPage(
+            toNoteID: referencePage.noteID,
+            at: insertionIndex,
+            template: template ?? referencePage.template
+        )
+    }
+
+    mutating func insertPage(after pageID: UUID, template: PageTemplate? = nil) throws -> NotePage {
+        let referencePage = try existingPage(id: pageID)
+        let insertionIndex = (pages(in: referencePage.noteID).firstIndex { $0.id == pageID } ?? 0) + 1
+        return try insertPage(
+            toNoteID: referencePage.noteID,
+            at: insertionIndex,
+            template: template ?? referencePage.template
+        )
+    }
+
+    mutating func duplicatePage(after pageID: UUID) throws -> NotePage {
+        let sourcePage = try existingPage(id: pageID)
+        let insertionIndex = (pages(in: sourcePage.noteID).firstIndex { $0.id == pageID } ?? 0) + 1
+        return try insertPage(
+            toNoteID: sourcePage.noteID,
+            at: insertionIndex,
+            format: sourcePage.format,
+            template: sourcePage.template
+        )
+    }
+
+    mutating func deletePage(id pageID: UUID) throws -> PageDeletionResult {
+        let page = try existingPage(id: pageID)
+        guard let noteIndex = notes.firstIndex(where: { $0.id == page.noteID }) else {
+            throw LibraryMutationError.noteNotFound(page.noteID)
         }
 
-        let existingPages = pages(in: noteID)
-        let nextIndex = (existingPages.map(\.index).max() ?? -1) + 1
-        let pageID = UUID()
-        let page = NotePage(
-            id: pageID,
-            noteID: noteID,
-            index: nextIndex,
-            format: .a4Portrait,
-            template: template,
-            drawingResourceID: "\(pageID.uuidString).drawing"
-        )
+        let orderedPages = pages(in: page.noteID)
+        guard orderedPages.count > 1 else {
+            throw LibraryMutationError.cannotDeleteLastPage(page.noteID)
+        }
 
-        notes[noteIndex].pageIDs.append(pageID)
+        let deletedIndex = orderedPages.firstIndex { $0.id == pageID } ?? 0
+        let remainingPageIDs = orderedPages
+            .filter { $0.id != pageID }
+            .map(\.id)
+        let preferredSelectionIndex = min(deletedIndex, remainingPageIDs.count - 1)
+
+        pages.removeAll { $0.id == pageID }
+        notes[noteIndex].pageIDs = remainingPageIDs
         notes[noteIndex].updatedAt = Date()
-        pages.append(page)
+        reindexPages(for: page.noteID, orderedPageIDs: remainingPageIDs)
 
-        return page
+        return PageDeletionResult(
+            drawingResourceID: page.drawingResourceID,
+            preferredSelectionPageID: remainingPageIDs[preferredSelectionIndex]
+        )
+    }
+
+    mutating func movePage(id pageID: UUID, toIndex targetIndex: Int) throws {
+        let page = try existingPage(id: pageID)
+        guard let noteIndex = notes.firstIndex(where: { $0.id == page.noteID }) else {
+            throw LibraryMutationError.noteNotFound(page.noteID)
+        }
+
+        var orderedPageIDs = pages(in: page.noteID).map(\.id)
+        guard let sourceIndex = orderedPageIDs.firstIndex(of: pageID) else {
+            throw LibraryMutationError.pageNotFound(pageID)
+        }
+
+        orderedPageIDs.remove(at: sourceIndex)
+        let boundedIndex = min(max(targetIndex, 0), orderedPageIDs.count)
+        orderedPageIDs.insert(pageID, at: boundedIndex)
+
+        notes[noteIndex].pageIDs = orderedPageIDs
+        notes[noteIndex].updatedAt = Date()
+        reindexPages(for: page.noteID, orderedPageIDs: orderedPageIDs)
     }
 
     mutating func deleteNote(id: UUID) throws -> [String] {
@@ -443,6 +502,58 @@ extension NoteLibrarySnapshot {
             folders[index].childFolderIDs.removeAll { $0 == id }
         }
     }
+
+    private mutating func insertPage(
+        toNoteID noteID: UUID,
+        at insertionIndex: Int,
+        format: PageFormat = .a4Portrait,
+        template: PageTemplate
+    ) throws -> NotePage {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
+            throw LibraryMutationError.noteNotFound(noteID)
+        }
+
+        let pageID = UUID()
+        let page = NotePage(
+            id: pageID,
+            noteID: noteID,
+            index: insertionIndex,
+            format: format,
+            template: template,
+            drawingResourceID: "\(pageID.uuidString).drawing"
+        )
+
+        var orderedPageIDs = pages(in: noteID).map(\.id)
+        let boundedIndex = min(max(insertionIndex, 0), orderedPageIDs.count)
+        orderedPageIDs.insert(pageID, at: boundedIndex)
+
+        pages.append(page)
+        notes[noteIndex].pageIDs = orderedPageIDs
+        notes[noteIndex].updatedAt = Date()
+        reindexPages(for: noteID, orderedPageIDs: orderedPageIDs)
+
+        return self.page(id: pageID) ?? page
+    }
+
+    private func existingPage(id pageID: UUID) throws -> NotePage {
+        guard let page = page(id: pageID) else {
+            throw LibraryMutationError.pageNotFound(pageID)
+        }
+
+        return page
+    }
+
+    private mutating func reindexPages(for noteID: UUID, orderedPageIDs: [UUID]) {
+        let indexesByPageID = Dictionary(uniqueKeysWithValues: orderedPageIDs.enumerated().map { index, pageID in
+            (pageID, index)
+        })
+
+        for index in pages.indices where pages[index].noteID == noteID {
+            if let newIndex = indexesByPageID[pages[index].id] {
+                pages[index].index = newIndex
+            }
+        }
+    }
 }
 
 enum LibraryMutationError: Error, Equatable {
@@ -453,6 +564,12 @@ enum LibraryMutationError: Error, Equatable {
     case toolPresetNotFound(UUID)
     case cannotDeleteBuiltInToolPreset(UUID)
     case cannotDeleteLastWritingToolPreset(UUID)
+    case cannotDeleteLastPage(UUID)
+}
+
+struct PageDeletionResult: Equatable, Sendable {
+    let drawingResourceID: String
+    let preferredSelectionPageID: UUID
 }
 
 extension NoteLibrarySnapshot {
@@ -473,7 +590,7 @@ extension NoteLibrarySnapshot {
         let note = NoteDocument(
             id: noteID,
             folderID: folderID,
-            title: "Lezione 1",
+            title: "Lesson 1",
             pageIDs: [pageID],
             createdAt: Date(timeIntervalSince1970: 0),
             updatedAt: Date(timeIntervalSince1970: 0)
@@ -481,7 +598,7 @@ extension NoteLibrarySnapshot {
 
         let folder = NotebookFolder(
             id: folderID,
-            name: "Matematica",
+            name: "Math",
             noteIDs: [noteID]
         )
 

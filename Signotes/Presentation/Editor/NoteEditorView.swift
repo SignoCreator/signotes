@@ -5,9 +5,12 @@ struct NoteEditorView: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject var viewModel: NoteEditorViewModel
     @State private var resetZoomToken = 0
-    @State private var pageTransitionDirection: PageTurnDirection = .next
+    @State private var pageDragState = EditorPageDragState.inactive
+    @State private var pageTurnTask: Task<Void, Never>?
+    @State private var pendingAppendPageID = UUID()
     @State private var canvasCommandRequest: EditorCanvasCommandRequest?
     @State private var canvasCommandAvailability = EditorCanvasCommandAvailability()
+    @State private var isPageOverviewPresented = false
 
     private let pageSize = CGSize(width: 794, height: 1123)
 
@@ -17,30 +20,90 @@ struct NoteEditorView: View {
                 .ignoresSafeArea()
 
             if let page = viewModel.page {
-                // `PageCanvasView` owns zoom and canvas rendering in UIKit so PencilKit can redraw sharply while scaled.
-                PageCanvasView(
+                EditorPageCarouselView(
                     page: page,
-                    initialDrawing: viewModel.drawing,
+                    drawing: viewModel.drawing,
                     pageSize: pageSize,
                     resetZoomToken: resetZoomToken,
                     commandRequest: canvasCommandRequest,
                     toolPreset: viewModel.toolState.selectedPreset,
+                    previousTarget: previousTarget,
+                    nextTarget: nextTarget,
+                    dragState: pageDragState,
                     onDrawingChange: viewModel.save,
                     onPageTurn: handlePageTurn,
+                    onPageTurnDragUpdate: handlePageTurnDragUpdate,
                     onCommandAvailabilityChange: { availability in
                         canvasCommandAvailability = availability
                     }
                 )
-                .id(page.id)
-                .transition(pageTransition)
                 .zIndex(1)
             } else {
                 ProgressView()
             }
+
+            if isPageOverviewPresented {
+                GeometryReader { geometry in
+                    HStack(spacing: 0) {
+                        EditorPageOverviewPanel(
+                            pages: viewModel.pages,
+                            currentPageID: viewModel.page?.id,
+                            previewGeneration: viewModel.pageOverviewPreviewGeneration,
+                            pageSize: pageSize,
+                            previewDrawing: { page in
+                                EditorPagePreview(
+                                    page: page,
+                                    drawing: viewModel.previewDrawing(for: page),
+                                    drawingRevision: viewModel.previewRevision(for: page)
+                                )
+                            },
+                            onClose: {
+                                withAnimation(.snappy(duration: 0.18, extraBounce: 0)) {
+                                    isPageOverviewPresented = false
+                                }
+                                viewModel.setPageOverviewPresented(false)
+                            },
+                            onSelectPage: { pageID in
+                                selectPageFromOverview(pageID)
+                            },
+                            onInsertBefore: { pageID in
+                                await viewModel.insertPage(before: pageID)
+                                resetZoomToken += 1
+                            },
+                            onInsertAfter: { pageID in
+                                await viewModel.insertPage(after: pageID)
+                                resetZoomToken += 1
+                            },
+                            onDuplicate: { pageID in
+                                await viewModel.duplicatePage(after: pageID)
+                                resetZoomToken += 1
+                            },
+                            onDelete: { pageID in
+                                let deletedCurrentPage = pageID == viewModel.page?.id
+                                await viewModel.deletePage(id: pageID)
+                                if deletedCurrentPage {
+                                    resetZoomToken += 1
+                                }
+                            },
+                            onMove: { pageID, targetIndex in
+                                await viewModel.movePage(id: pageID, toIndex: targetIndex)
+                            },
+                            onAppend: {
+                                await viewModel.appendPageAtEnd()
+                                resetZoomToken += 1
+                            }
+                        )
+                        .frame(width: min(max(geometry.size.width * 0.42, 340), 460))
+                        .transition(.move(edge: .leading).combined(with: .opacity))
+
+                        Spacer(minLength: 0)
+                    }
+                }
+                .zIndex(3)
+            }
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
-        .animation(.snappy(duration: 0.28, extraBounce: 0), value: viewModel.page?.id)
         .safeAreaInset(edge: .top) {
             if viewModel.page != nil {
                 EditorTopChromeView(
@@ -52,6 +115,19 @@ struct NoteEditorView: View {
                     },
                     onResetZoom: {
                         resetZoomToken += 1
+                    },
+                    onTogglePageOverview: {
+                        withAnimation(.snappy(duration: 0.18, extraBounce: 0)) {
+                            isPageOverviewPresented.toggle()
+                        }
+                        viewModel.setPageOverviewPresented(isPageOverviewPresented)
+                        if !isPageOverviewPresented {
+                            return
+                        }
+
+                        Task {
+                            await viewModel.loadPageOverviewPreviews()
+                        }
                     },
                     onUndo: {
                         canvasCommandRequest = EditorCanvasCommandRequest(command: .undo)
@@ -77,6 +153,8 @@ struct NoteEditorView: View {
             await viewModel.load()
         }
         .onDisappear {
+            pageTurnTask?.cancel()
+            viewModel.setPageOverviewPresented(false)
             Task {
                 await viewModel.flushPendingDrawing()
             }
@@ -121,36 +199,156 @@ struct NoteEditorView: View {
         )
     }
 
-    private func handlePageTurn(_ direction: PageTurnDirection) {
-        Task {
-            let previousPageID = viewModel.page?.id
-            pageTransitionDirection = direction
+    private var previousTarget: EditorPageCarouselTarget? {
+        guard let page = viewModel.previousPage else {
+            return nil
+        }
 
-            switch direction {
-            case .previous:
-                await viewModel.goToPreviousPage()
-            case .next:
-                await viewModel.goToNextPageOrCreate()
+        return .existingPage(
+            page,
+            drawing: viewModel.previewDrawing(for: page),
+            drawingRevision: viewModel.previewRevision(for: page)
+        )
+    }
+
+    private var nextTarget: EditorPageCarouselTarget {
+        if let page = viewModel.nextPage {
+            return .existingPage(
+                page,
+                drawing: viewModel.previewDrawing(for: page),
+                drawingRevision: viewModel.previewRevision(for: page)
+            )
+        }
+
+        return .appendNewPage(
+            id: pendingAppendPageID,
+            template: viewModel.page?.template ?? .grid
+        )
+    }
+
+    private func handlePageTurnDragUpdate(_ update: PageTurnDragUpdate) {
+        guard !isPageOverviewPresented else {
+            resetPageDrag(animated: true)
+            return
+        }
+
+        switch update {
+        case let .changed(direction, translationX):
+            guard canTurnPage(direction) else {
+                resetPageDrag(animated: true)
+                return
             }
 
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                pageDragState = EditorPageDragState(
+                    direction: direction,
+                    translationX: translationX,
+                    isSettling: false
+                )
+            }
+        case .cancelled:
+            resetPageDrag(animated: true)
+        }
+    }
+
+    private func selectPageFromOverview(_ pageID: UUID) {
+        let previousPageID = viewModel.page?.id
+
+        Task {
+            await viewModel.goToPage(id: pageID)
             if viewModel.page?.id != previousPageID {
                 resetZoomToken += 1
             }
         }
     }
 
-    private var pageTransition: AnyTransition {
-        switch pageTransitionDirection {
+    private func handlePageTurn(_ direction: PageTurnDirection) {
+        guard let target = turnTarget(for: direction) else {
+            resetPageDrag(animated: true)
+            return
+        }
+
+        pageTurnTask?.cancel()
+        withAnimation(.snappy(duration: 0.22, extraBounce: 0)) {
+            pageDragState = EditorPageDragState(
+                direction: direction,
+                translationX: pageDragState.translationX,
+                isSettling: true
+            )
+        }
+
+        pageTurnTask = Task {
+            try? await Task.sleep(for: .milliseconds(180))
+            guard !Task.isCancelled else {
+                return
+            }
+
+            await completePageTurn(target)
+        }
+    }
+
+    private func canTurnPage(_ direction: PageTurnDirection) -> Bool {
+        switch direction {
         case .previous:
-            .asymmetric(
-                insertion: .move(edge: .leading).combined(with: .opacity),
-                removal: .move(edge: .trailing).combined(with: .opacity)
+            viewModel.canGoToPreviousPage
+        case .next:
+            true
+        }
+    }
+
+    private func turnTarget(for direction: PageTurnDirection) -> EditorPageTurnTarget? {
+        switch direction {
+        case .previous:
+            guard let previousTarget else {
+                return nil
+            }
+
+            return EditorPageTurnTarget(
+                direction: direction,
+                destination: previousTarget.destination
             )
         case .next:
-            .asymmetric(
-                insertion: .move(edge: .trailing).combined(with: .opacity),
-                removal: .move(edge: .leading).combined(with: .opacity)
+            return EditorPageTurnTarget(
+                direction: direction,
+                destination: nextTarget.destination
             )
+        }
+    }
+
+    @MainActor
+    private func completePageTurn(_ target: EditorPageTurnTarget) async {
+        let previousPageID = viewModel.page?.id
+
+        switch target.destination {
+        case let .existingPage(pageID):
+            await viewModel.goToPage(id: pageID)
+        case let .appendNewPage(appendSlotID):
+            await viewModel.appendPageAfterCurrent()
+            if appendSlotID == pendingAppendPageID {
+                pendingAppendPageID = UUID()
+            }
+        }
+
+        if viewModel.page?.id != previousPageID {
+            resetZoomToken += 1
+        }
+
+        resetPageDrag(animated: false)
+    }
+
+    private func resetPageDrag(animated: Bool) {
+        if animated {
+            withAnimation(.snappy(duration: 0.20, extraBounce: 0)) {
+                pageDragState = .inactive
+            }
+        } else {
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                pageDragState = .inactive
+            }
         }
     }
 }

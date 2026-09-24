@@ -32,7 +32,7 @@ final class LibraryViewModelTests: XCTestCase {
 
         XCTAssertNil(viewModel.selectedRootFolderID)
         XCTAssertNil(viewModel.currentFolderID)
-        XCTAssertEqual(viewModel.visibleChildFolders.map(\.name), ["Matematica"])
+        XCTAssertEqual(viewModel.visibleChildFolders.map(\.name), ["Math"])
         XCTAssertTrue(viewModel.visibleNotes.isEmpty)
     }
 
@@ -123,7 +123,7 @@ final class LibraryViewModelTests: XCTestCase {
 
     func testDeleteCurrentFolderNavigatesToParent() async throws {
         var snapshot = NoteLibrarySnapshot()
-        let root = try snapshot.addFolder(name: "Matematica", colorHex: "#F2C94C")
+        let root = try snapshot.addFolder(name: "Math", colorHex: "#F2C94C")
         let child = try snapshot.addFolder(name: "Analisi", colorHex: "#4F8BFF", parentID: root.id)
         _ = try snapshot.addNote(title: "Integrali", colorHex: "#AF7AFF", folderID: child.id)
         let repository = InMemoryNotesRepository(snapshot: snapshot)
@@ -144,9 +144,9 @@ final class LibraryViewModelTests: XCTestCase {
 
     func testMoveDraggedNotePersistsDestinationFolder() async throws {
         var snapshot = NoteLibrarySnapshot()
-        let source = try snapshot.addFolder(name: "Matematica")
+        let source = try snapshot.addFolder(name: "Math")
         let destination = try snapshot.addFolder(name: "Fisica")
-        let note = try snapshot.addNote(title: "Lezione 1", folderID: source.id)
+        let note = try snapshot.addNote(title: "Lesson 1", folderID: source.id)
         let repository = InMemoryNotesRepository(snapshot: snapshot)
         let drawingRepository = InMemoryDrawingRepository()
         let viewModel = LibraryViewModel(notesRepository: repository, drawingRepository: drawingRepository)
@@ -162,7 +162,7 @@ final class LibraryViewModelTests: XCTestCase {
 
     func testMoveDraggedFolderPersistsAndUpdatesCurrentRoot() async throws {
         var snapshot = NoteLibrarySnapshot()
-        let sourceParent = try snapshot.addFolder(name: "Matematica")
+        let sourceParent = try snapshot.addFolder(name: "Math")
         let destinationParent = try snapshot.addFolder(name: "Fisica")
         let child = try snapshot.addFolder(name: "Analisi", parentID: sourceParent.id)
         let repository = InMemoryNotesRepository(snapshot: snapshot)
@@ -182,7 +182,7 @@ final class LibraryViewModelTests: XCTestCase {
 
     func testCanDropDraggedFolderRejectsSelfAndDescendantTargets() async throws {
         var snapshot = NoteLibrarySnapshot()
-        let root = try snapshot.addFolder(name: "Matematica")
+        let root = try snapshot.addFolder(name: "Math")
         let destination = try snapshot.addFolder(name: "Fisica")
         let child = try snapshot.addFolder(name: "Analisi", parentID: root.id)
         let grandchild = try snapshot.addFolder(name: "Serie", parentID: child.id)
@@ -200,9 +200,9 @@ final class LibraryViewModelTests: XCTestCase {
 
     func testCanDropDraggedNoteRejectsRootAndSameFolder() async throws {
         var snapshot = NoteLibrarySnapshot()
-        let source = try snapshot.addFolder(name: "Matematica")
+        let source = try snapshot.addFolder(name: "Math")
         let destination = try snapshot.addFolder(name: "Fisica")
-        let note = try snapshot.addNote(title: "Lezione 1", folderID: source.id)
+        let note = try snapshot.addNote(title: "Lesson 1", folderID: source.id)
         let repository = InMemoryNotesRepository(snapshot: snapshot)
         let drawingRepository = InMemoryDrawingRepository()
         let viewModel = LibraryViewModel(notesRepository: repository, drawingRepository: drawingRepository)

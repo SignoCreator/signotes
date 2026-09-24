@@ -61,12 +61,16 @@
 		A10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift */; };
 		A10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift */; };
 		A10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift */; };
+		A1000000000000000000003A /* Presentation/Editor/EditorPagePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003A /* Presentation/Editor/EditorPagePreview.swift */; };
+		A1000000000000000000003B /* Presentation/Editor/EditorPageCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003B /* Presentation/Editor/EditorPageCarouselView.swift */; };
+		A1000000000000000000003C /* Presentation/Editor/EditorPageOverviewPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000003C /* Presentation/Editor/EditorPageOverviewPanel.swift */; };
 		A20000000000000000000001 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* DomainModelTests.swift */; };
 		A20000000000000000000002 /* LocalPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* LocalPersistenceTests.swift */; };
 		A20000000000000000000003 /* LibraryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* LibraryViewModelTests.swift */; };
 		A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* NoteEditorViewModelTests.swift */; };
 		A20000000000000000000005 /* CanvasViewportConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */; };
 		A20000000000000000000006 /* PageTurnIntentResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000007 /* PageTurnIntentResolverTests.swift */; };
+		A20000000000000000000007 /* EditorPageCarouselLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000008 /* EditorPageCarouselLayoutTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,6 +139,9 @@
 		B10000000000000000000037 /* Presentation/Editor/PageTemplateToolButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/PageTemplateToolButton.swift; sourceTree = "<group>"; };
 		B10000000000000000000038 /* Presentation/Editor/PageTemplatePickerPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/PageTemplatePickerPopover.swift; sourceTree = "<group>"; };
 		B10000000000000000000039 /* Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/ToolSettings/ToolPresetSettingsHeader.swift; sourceTree = "<group>"; };
+		B1000000000000000000003A /* Presentation/Editor/EditorPagePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorPagePreview.swift; sourceTree = "<group>"; };
+		B1000000000000000000003B /* Presentation/Editor/EditorPageCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorPageCarouselView.swift; sourceTree = "<group>"; };
+		B1000000000000000000003C /* Presentation/Editor/EditorPageOverviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Editor/EditorPageOverviewPanel.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/DomainModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* SignotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SignotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000003 /* LocalPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/LocalPersistenceTests.swift; sourceTree = "<group>"; };
@@ -142,6 +149,7 @@
 		B20000000000000000000005 /* NoteEditorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/NoteEditorViewModelTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/CanvasViewportConfigurationTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000007 /* PageTurnIntentResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/PageTurnIntentResolverTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000008 /* EditorPageCarouselLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/EditorPageCarouselLayoutTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +201,9 @@
 				B10000000000000000000021 /* Presentation/Editor/EditorDrawingTool.swift */,
 				B10000000000000000000023 /* Presentation/Editor/EditorToolState.swift */,
 				B10000000000000000000024 /* Presentation/Editor/EditorToolFactory.swift */,
+				B1000000000000000000003A /* Presentation/Editor/EditorPagePreview.swift */,
+				B1000000000000000000003B /* Presentation/Editor/EditorPageCarouselView.swift */,
+				B1000000000000000000003C /* Presentation/Editor/EditorPageOverviewPanel.swift */,
 				B10000000000000000000022 /* Presentation/Editor/EditorToolPaletteView.swift */,
 				B10000000000000000000035 /* Presentation/Editor/EditorToolbarMetrics.swift */,
 				B10000000000000000000036 /* Presentation/Editor/ToolbarCommandButton.swift */,
@@ -250,6 +261,7 @@
 				B20000000000000000000005 /* NoteEditorViewModelTests.swift */,
 				B20000000000000000000006 /* CanvasViewportConfigurationTests.swift */,
 				B20000000000000000000007 /* PageTurnIntentResolverTests.swift */,
+				B20000000000000000000008 /* EditorPageCarouselLayoutTests.swift */,
 			);
 			path = SignotesTests;
 			sourceTree = "<group>";
@@ -372,6 +384,9 @@
 				A10000000000000000000020 /* Presentation/Editor/EditorDrawingTool.swift in Sources */,
 				A10000000000000000000022 /* Presentation/Editor/EditorToolState.swift in Sources */,
 				A10000000000000000000023 /* Presentation/Editor/EditorToolFactory.swift in Sources */,
+				A1000000000000000000003A /* Presentation/Editor/EditorPagePreview.swift in Sources */,
+				A1000000000000000000003B /* Presentation/Editor/EditorPageCarouselView.swift in Sources */,
+				A1000000000000000000003C /* Presentation/Editor/EditorPageOverviewPanel.swift in Sources */,
 				A10000000000000000000021 /* Presentation/Editor/EditorToolPaletteView.swift in Sources */,
 				A10000000000000000000035 /* Presentation/Editor/EditorToolbarMetrics.swift in Sources */,
 				A10000000000000000000036 /* Presentation/Editor/ToolbarCommandButton.swift in Sources */,
@@ -419,6 +434,7 @@
 				A20000000000000000000004 /* NoteEditorViewModelTests.swift in Sources */,
 				A20000000000000000000005 /* CanvasViewportConfigurationTests.swift in Sources */,
 				A20000000000000000000006 /* PageTurnIntentResolverTests.swift in Sources */,
+				A20000000000000000000007 /* EditorPageCarouselLayoutTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -15,9 +15,9 @@ final class DomainModelTests: XCTestCase {
 
         XCTAssertEqual(seed.schemaVersion, 1)
         XCTAssertEqual(seed.folders.count, 1)
-        XCTAssertEqual(seed.folders.first?.name, "Matematica")
+        XCTAssertEqual(seed.folders.first?.name, "Math")
         XCTAssertEqual(seed.notes.count, 1)
-        XCTAssertEqual(seed.notes.first?.title, "Lezione 1")
+        XCTAssertEqual(seed.notes.first?.title, "Lesson 1")
         XCTAssertEqual(seed.pages.count, 1)
         XCTAssertEqual(seed.pages.first?.template, .grid)
     }
@@ -55,7 +55,7 @@ final class DomainModelTests: XCTestCase {
     func testAddUpdateAndDeleteCustomToolPreset() throws {
         var library = NoteLibrarySnapshot()
         let preset = library.addToolPreset(
-            name: "Penna rossa",
+            name: "Red pen",
             kind: .pen,
             colorHex: "#FF0000",
             width: 3.5
@@ -90,10 +90,10 @@ final class DomainModelTests: XCTestCase {
     func testLibrarySupportsRecursiveFolders() throws {
         var library = NoteLibrarySnapshot()
 
-        let root = try library.addFolder(name: "Matematica", colorHex: "#F2C94C")
+        let root = try library.addFolder(name: "Math", colorHex: "#F2C94C")
         let child = try library.addFolder(name: "Analisi", colorHex: "#4F8BFF", parentID: root.id)
         let note = try library.addNote(
-            title: "Lezione 1",
+            title: "Lesson 1",
             colorHex: "#5AC8A8",
             folderID: child.id,
             now: Date(timeIntervalSince1970: 10)
@@ -122,7 +122,7 @@ final class DomainModelTests: XCTestCase {
 
     func testUpdateFolderNameAndColor() throws {
         var library = NoteLibrarySnapshot()
-        let folder = try library.addFolder(name: "Matematica", colorHex: "#F2C94C")
+        let folder = try library.addFolder(name: "Math", colorHex: "#F2C94C")
 
         try library.updateFolder(id: folder.id, name: "Analisi", colorHex: "#4F8BFF")
 
@@ -132,9 +132,9 @@ final class DomainModelTests: XCTestCase {
 
     func testUpdateNoteTitleColorAndTimestamp() throws {
         var library = NoteLibrarySnapshot()
-        let folder = try library.addFolder(name: "Matematica")
+        let folder = try library.addFolder(name: "Math")
         let note = try library.addNote(
-            title: "Lezione 1",
+            title: "Lesson 1",
             colorHex: "#F2C94C",
             folderID: folder.id,
             now: Date(timeIntervalSince1970: 10)
@@ -154,8 +154,8 @@ final class DomainModelTests: XCTestCase {
 
     func testUpdatePageTemplateMutatesOnlyPageMetadata() throws {
         var library = NoteLibrarySnapshot()
-        let folder = try library.addFolder(name: "Matematica")
-        let note = try library.addNote(title: "Lezione 1", folderID: folder.id)
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
         let page = try XCTUnwrap(library.firstPage(in: note.id))
 
         try library.updatePageTemplate(pageID: page.id, template: .ruled)
@@ -168,8 +168,8 @@ final class DomainModelTests: XCTestCase {
 
     func testAppendPageAddsOrderedPageAndInheritsRequestedTemplate() throws {
         var library = NoteLibrarySnapshot()
-        let folder = try library.addFolder(name: "Matematica")
-        let note = try library.addNote(title: "Lezione 1", folderID: folder.id)
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
         let firstPage = try XCTUnwrap(library.firstPage(in: note.id))
 
         let secondPage = try library.appendPage(toNoteID: note.id, template: .ruled)
@@ -183,10 +183,91 @@ final class DomainModelTests: XCTestCase {
         XCTAssertEqual(library.note(id: note.id)?.pageIDs, [firstPage.id, secondPage.id])
     }
 
+    func testInsertPageBeforeAndAfterReindexesPages() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
+        let firstPage = try XCTUnwrap(library.firstPage(in: note.id))
+        let lastPage = try library.appendPage(toNoteID: note.id, template: .ruled)
+
+        let insertedBefore = try library.insertPage(before: lastPage.id, template: .dotted)
+        let insertedAfter = try library.insertPage(after: firstPage.id, template: .blank)
+
+        let orderedPages = library.pages(in: note.id)
+        XCTAssertEqual(orderedPages.map(\.id), [firstPage.id, insertedAfter.id, insertedBefore.id, lastPage.id])
+        XCTAssertEqual(orderedPages.map(\.index), [0, 1, 2, 3])
+        XCTAssertEqual(insertedBefore.template, .dotted)
+        XCTAssertEqual(insertedAfter.template, .blank)
+        XCTAssertEqual(library.note(id: note.id)?.pageIDs, orderedPages.map(\.id))
+    }
+
+    func testDuplicatePageCreatesNewMetadataAfterSource() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
+        let firstPage = try XCTUnwrap(library.firstPage(in: note.id))
+        try library.updatePageTemplate(pageID: firstPage.id, template: .dotted)
+
+        let duplicate = try library.duplicatePage(after: firstPage.id)
+
+        let orderedPages = library.pages(in: note.id)
+        XCTAssertEqual(orderedPages.map(\.id), [firstPage.id, duplicate.id])
+        XCTAssertEqual(duplicate.index, 1)
+        XCTAssertEqual(duplicate.format, firstPage.format)
+        XCTAssertEqual(duplicate.template, .dotted)
+        XCTAssertNotEqual(duplicate.drawingResourceID, firstPage.drawingResourceID)
+    }
+
+    func testDeletePageRemovesMetadataAndSelectsNearestRemainingPage() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
+        let firstPage = try XCTUnwrap(library.firstPage(in: note.id))
+        let secondPage = try library.appendPage(toNoteID: note.id, template: .ruled)
+        let thirdPage = try library.appendPage(toNoteID: note.id, template: .dotted)
+
+        let deletion = try library.deletePage(id: secondPage.id)
+
+        let orderedPages = library.pages(in: note.id)
+        XCTAssertEqual(orderedPages.map(\.id), [firstPage.id, thirdPage.id])
+        XCTAssertEqual(orderedPages.map(\.index), [0, 1])
+        XCTAssertEqual(deletion.drawingResourceID, secondPage.drawingResourceID)
+        XCTAssertEqual(deletion.preferredSelectionPageID, thirdPage.id)
+        XCTAssertNil(library.page(id: secondPage.id))
+        XCTAssertEqual(library.note(id: note.id)?.pageIDs, [firstPage.id, thirdPage.id])
+    }
+
+    func testDeleteOnlyPageThrows() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
+        let page = try XCTUnwrap(library.firstPage(in: note.id))
+
+        XCTAssertThrowsError(try library.deletePage(id: page.id)) { error in
+            XCTAssertEqual(error as? LibraryMutationError, .cannotDeleteLastPage(note.id))
+        }
+    }
+
+    func testMovePageReordersIndexesWithoutChangingDrawingResources() throws {
+        var library = NoteLibrarySnapshot()
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
+        let firstPage = try XCTUnwrap(library.firstPage(in: note.id))
+        let secondPage = try library.appendPage(toNoteID: note.id, template: .ruled)
+        let thirdPage = try library.appendPage(toNoteID: note.id, template: .dotted)
+
+        try library.movePage(id: thirdPage.id, toIndex: 0)
+
+        let orderedPages = library.pages(in: note.id)
+        XCTAssertEqual(orderedPages.map(\.id), [thirdPage.id, firstPage.id, secondPage.id])
+        XCTAssertEqual(orderedPages.map(\.index), [0, 1, 2])
+        XCTAssertEqual(library.page(id: thirdPage.id)?.drawingResourceID, thirdPage.drawingResourceID)
+    }
+
     func testDeleteNoteRemovesPagesAndParentReference() throws {
         var library = NoteLibrarySnapshot()
-        let folder = try library.addFolder(name: "Matematica")
-        let note = try library.addNote(title: "Lezione 1", folderID: folder.id)
+        let folder = try library.addFolder(name: "Math")
+        let note = try library.addNote(title: "Lesson 1", folderID: folder.id)
         let page = try XCTUnwrap(library.firstPage(in: note.id))
         let secondPage = try library.appendPage(toNoteID: note.id, template: .dotted)
 
@@ -200,10 +281,10 @@ final class DomainModelTests: XCTestCase {
 
     func testDeleteFolderTreeRemovesDescendantsNotesPagesAndParentReference() throws {
         var library = NoteLibrarySnapshot()
-        let root = try library.addFolder(name: "Matematica")
+        let root = try library.addFolder(name: "Math")
         let child = try library.addFolder(name: "Analisi", parentID: root.id)
         let grandchild = try library.addFolder(name: "Serie", parentID: child.id)
-        let note = try library.addNote(title: "Lezione 1", folderID: grandchild.id)
+        let note = try library.addNote(title: "Lesson 1", folderID: grandchild.id)
         let page = try XCTUnwrap(library.firstPage(in: note.id))
         let secondPage = try library.appendPage(toNoteID: note.id, template: .ruled)
 
@@ -220,9 +301,9 @@ final class DomainModelTests: XCTestCase {
 
     func testMoveNoteChangesParentFolderReference() throws {
         var library = NoteLibrarySnapshot()
-        let source = try library.addFolder(name: "Matematica")
+        let source = try library.addFolder(name: "Math")
         let destination = try library.addFolder(name: "Fisica")
-        let note = try library.addNote(title: "Lezione 1", folderID: source.id)
+        let note = try library.addNote(title: "Lesson 1", folderID: source.id)
 
         try library.moveNote(id: note.id, toFolderID: destination.id)
 
@@ -233,7 +314,7 @@ final class DomainModelTests: XCTestCase {
 
     func testMoveFolderChangesParentFolderReference() throws {
         var library = NoteLibrarySnapshot()
-        let sourceParent = try library.addFolder(name: "Matematica")
+        let sourceParent = try library.addFolder(name: "Math")
         let destinationParent = try library.addFolder(name: "Fisica")
         let child = try library.addFolder(name: "Analisi", parentID: sourceParent.id)
 
@@ -246,7 +327,7 @@ final class DomainModelTests: XCTestCase {
 
     func testMoveFolderToRootRemovesParentReference() throws {
         var library = NoteLibrarySnapshot()
-        let root = try library.addFolder(name: "Matematica")
+        let root = try library.addFolder(name: "Math")
         let child = try library.addFolder(name: "Analisi", parentID: root.id)
 
         try library.moveFolderToRoot(id: child.id)
@@ -257,7 +338,7 @@ final class DomainModelTests: XCTestCase {
 
     func testMoveFolderIntoItselfThrows() throws {
         var library = NoteLibrarySnapshot()
-        let folder = try library.addFolder(name: "Matematica")
+        let folder = try library.addFolder(name: "Math")
 
         XCTAssertThrowsError(try library.moveFolder(id: folder.id, toFolderID: folder.id)) { error in
             XCTAssertEqual(error as? LibraryMutationError, .invalidFolderMove(folder.id, folder.id))
@@ -266,7 +347,7 @@ final class DomainModelTests: XCTestCase {
 
     func testMoveFolderIntoDescendantThrows() throws {
         var library = NoteLibrarySnapshot()
-        let root = try library.addFolder(name: "Matematica")
+        let root = try library.addFolder(name: "Math")
         let child = try library.addFolder(name: "Analisi", parentID: root.id)
         let grandchild = try library.addFolder(name: "Serie", parentID: child.id)
 

@@ -1,22 +1,27 @@
 import PencilKit
 import SwiftUI
 
-enum PageTurnDirection {
+enum PageTurnDirection: Equatable, Sendable {
     case previous
     case next
 }
 
-enum EditorCanvasCommand {
+enum PageTurnDragUpdate: Equatable, Sendable {
+    case changed(direction: PageTurnDirection, translationX: CGFloat)
+    case cancelled
+}
+
+enum EditorCanvasCommand: Equatable, Sendable {
     case undo
     case redo
 }
 
-struct EditorCanvasCommandRequest: Equatable {
+struct EditorCanvasCommandRequest: Equatable, Sendable {
     let id = UUID()
     let command: EditorCanvasCommand
 }
 
-struct EditorCanvasCommandAvailability: Equatable {
+struct EditorCanvasCommandAvailability: Equatable, Sendable {
     var canUndo = false
     var canRedo = false
 }
@@ -28,8 +33,10 @@ struct PageCanvasView: UIViewRepresentable {
     let resetZoomToken: Int
     let commandRequest: EditorCanvasCommandRequest?
     let toolPreset: DrawingToolPreset
+    let pageTurnAvailability: PageTurnAvailability
     let onDrawingChange: (PKDrawing) -> Void
     let onPageTurn: (PageTurnDirection) -> Void
+    let onPageTurnDragUpdate: (PageTurnDragUpdate) -> Void
     let onCommandAvailabilityChange: (EditorCanvasCommandAvailability) -> Void
 
     func makeUIView(context: Context) -> PencilPageContainerView {
@@ -41,6 +48,9 @@ struct PageCanvasView: UIViewRepresentable {
         containerView.onPageTurn = { direction in
             coordinator.pageTurnRequested(direction)
         }
+        containerView.onPageTurnDragUpdate = { update in
+            coordinator.pageTurnDragDidUpdate(update)
+        }
         containerView.onCommandAvailabilityChange = { availability in
             coordinator.commandAvailabilityDidChange(availability)
         }
@@ -50,6 +60,7 @@ struct PageCanvasView: UIViewRepresentable {
             template: page.template,
             initialDrawing: initialDrawing,
             toolPreset: toolPreset,
+            pageTurnAvailability: pageTurnAvailability,
             resetZoomToken: resetZoomToken
         )
         return containerView
@@ -63,6 +74,7 @@ struct PageCanvasView: UIViewRepresentable {
             template: page.template,
             initialDrawing: initialDrawing,
             toolPreset: toolPreset,
+            pageTurnAvailability: pageTurnAvailability,
             resetZoomToken: resetZoomToken
         )
         context.coordinator.applyCommandIfNeeded(commandRequest, to: containerView)
@@ -92,6 +104,10 @@ struct PageCanvasView: UIViewRepresentable {
 
         func pageTurnRequested(_ direction: PageTurnDirection) {
             parent.onPageTurn(direction)
+        }
+
+        func pageTurnDragDidUpdate(_ update: PageTurnDragUpdate) {
+            parent.onPageTurnDragUpdate(update)
         }
 
         func commandAvailabilityDidChange(_ availability: EditorCanvasCommandAvailability) {

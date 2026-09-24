@@ -6,6 +6,7 @@ struct EditorTopChromeView: View {
     @Binding var selectedTemplate: PageTemplate
     let onBack: () -> Void
     let onResetZoom: () -> Void
+    let onTogglePageOverview: () -> Void
     let onUndo: () -> Void
     let onRedo: () -> Void
     let commandAvailability: EditorCanvasCommandAvailability
@@ -26,7 +27,7 @@ struct EditorTopChromeView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Indietro")
+                .accessibilityLabel("Back")
 
                 Text(title)
                     .font(.headline.weight(.semibold))
@@ -37,7 +38,7 @@ struct EditorTopChromeView: View {
                     .font(.subheadline.monospacedDigit().weight(.semibold))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                    .accessibilityLabel("Pagina \(pageIndicatorText)")
+                    .accessibilityLabel("Page \(pageIndicatorText)")
 
                 Button(action: onResetZoom) {
                     Image(systemName: "arrow.up.left.and.down.right.magnifyingglass")
@@ -46,16 +47,17 @@ struct EditorTopChromeView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Adatta larghezza")
+                .accessibilityLabel("Fit width")
             }
             .padding(.horizontal, 12)
             .frame(height: 44)
 
-            EditorToolPaletteView(
-                selectedTemplate: $selectedTemplate,
-                onUndo: onUndo,
-                onRedo: onRedo,
-                commandAvailability: commandAvailability,
+                EditorToolPaletteView(
+                    selectedTemplate: $selectedTemplate,
+                    onTogglePageOverview: onTogglePageOverview,
+                    onUndo: onUndo,
+                    onRedo: onRedo,
+                    commandAvailability: commandAvailability,
                 toolState: $toolState,
                 onCreatePreset: onCreatePreset,
                 onUpdatePreset: onUpdatePreset,
@@ -83,13 +85,13 @@ extension PageTemplate {
     var displayName: String {
         switch self {
         case .blank:
-            "Bianco"
+            "Blank"
         case .ruled:
-            "Righe"
+            "Ruled"
         case .grid:
-            "Quadretti"
+            "Grid"
         case .dotted:
-            "Puntinato"
+            "Dotted"
         }
     }
 

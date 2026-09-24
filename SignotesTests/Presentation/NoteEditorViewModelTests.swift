@@ -1,3 +1,4 @@
+import Combine
 import PencilKit
 import UIKit
 import XCTest
@@ -223,6 +224,27 @@ final class NoteEditorViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.canGoToPreviousPage)
     }
 
+    func testGoToPageSelectsExplicitExistingPageWithoutAppending() async throws {
+        var snapshot = NoteLibrarySnapshot.seed
+        let note = try XCTUnwrap(snapshot.notes.first)
+        let firstPage = try XCTUnwrap(snapshot.firstPage(in: note.id))
+        let secondPage = try snapshot.appendPage(toNoteID: note.id, template: .dotted)
+        let repository = EditorInMemoryNotesRepository(snapshot: snapshot)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: EditorInMemoryDrawingRepository()
+        )
+
+        await viewModel.load()
+        await viewModel.goToPage(id: secondPage.id)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        XCTAssertEqual(viewModel.page?.id, secondPage.id)
+        XCTAssertEqual(viewModel.previousPage?.id, firstPage.id)
+        XCTAssertEqual(savedSnapshot.pages(in: note.id).count, 2)
+    }
+
     func testTemplateUpdateMutatesOnlyCurrentPage() async throws {
         var snapshot = NoteLibrarySnapshot.seed
         let note = try XCTUnwrap(snapshot.notes.first)
@@ -242,6 +264,125 @@ final class NoteEditorViewModelTests: XCTestCase {
         let savedSnapshot = await repository.currentSnapshot()
         XCTAssertEqual(savedSnapshot.page(id: firstPage.id)?.template, .grid)
         XCTAssertEqual(savedSnapshot.page(id: secondPage.id)?.template, .dotted)
+    }
+
+    func testInsertPageBeforeSelectsAndPersistsNewPage() async throws {
+        var snapshot = NoteLibrarySnapshot.seed
+        let note = try XCTUnwrap(snapshot.notes.first)
+        let firstPage = try XCTUnwrap(snapshot.firstPage(in: note.id))
+        let secondPage = try snapshot.appendPage(toNoteID: note.id, template: .ruled)
+        let repository = EditorInMemoryNotesRepository(snapshot: snapshot)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: EditorInMemoryDrawingRepository()
+        )
+
+        await viewModel.load()
+        await viewModel.insertPage(before: secondPage.id)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        let orderedPages = savedSnapshot.pages(in: note.id)
+        XCTAssertEqual(orderedPages.count, 3)
+        XCTAssertEqual(orderedPages.map(\.id).first, firstPage.id)
+        XCTAssertEqual(orderedPages.map(\.id).last, secondPage.id)
+        XCTAssertEqual(viewModel.page?.id, orderedPages[1].id)
+        XCTAssertEqual(viewModel.pageIndicatorText, "2 / 3")
+    }
+
+    func testDuplicatePageCopiesDrawingDataAndSelectsDuplicate() async throws {
+        let repository = EditorInMemoryNotesRepository(snapshot: .seed)
+        let drawingRepository = EditorInMemoryDrawingRepository()
+        let note = try XCTUnwrap(NoteLibrarySnapshot.seed.notes.first)
+        let firstPage = try XCTUnwrap(NoteLibrarySnapshot.seed.firstPage(in: note.id))
+        let sourceData = PKDrawing().dataRepresentation()
+        await drawingRepository.setData(sourceData, resourceID: firstPage.drawingResourceID)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: drawingRepository
+        )
+
+        await viewModel.load()
+        await viewModel.duplicatePage(after: firstPage.id)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        let duplicate = try XCTUnwrap(savedSnapshot.pages(in: note.id).last)
+        let duplicatedData = try await drawingRepository.loadDrawingData(resourceID: duplicate.drawingResourceID)
+        XCTAssertNotEqual(duplicate.id, firstPage.id)
+        XCTAssertNotEqual(duplicate.drawingResourceID, firstPage.drawingResourceID)
+        XCTAssertEqual(duplicatedData, sourceData)
+        XCTAssertEqual(viewModel.page?.id, duplicate.id)
+    }
+
+    func testDeleteCurrentPageDeletesDrawingDataAndSelectsNearestPage() async throws {
+        var snapshot = NoteLibrarySnapshot.seed
+        let note = try XCTUnwrap(snapshot.notes.first)
+        let firstPage = try XCTUnwrap(snapshot.firstPage(in: note.id))
+        let secondPage = try snapshot.appendPage(toNoteID: note.id, template: .ruled)
+        let thirdPage = try snapshot.appendPage(toNoteID: note.id, template: .dotted)
+        let repository = EditorInMemoryNotesRepository(snapshot: snapshot)
+        let drawingRepository = EditorInMemoryDrawingRepository()
+        await drawingRepository.setData(PKDrawing().dataRepresentation(), resourceID: secondPage.drawingResourceID)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: drawingRepository
+        )
+
+        await viewModel.load()
+        await viewModel.goToPage(id: secondPage.id)
+        await viewModel.deletePage(id: secondPage.id)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        let deletedData = try await drawingRepository.loadDrawingData(resourceID: secondPage.drawingResourceID)
+        XCTAssertEqual(savedSnapshot.pages(in: note.id).map(\.id), [firstPage.id, thirdPage.id])
+        XCTAssertNil(deletedData)
+        XCTAssertEqual(viewModel.page?.id, thirdPage.id)
+        XCTAssertEqual(viewModel.pageIndicatorText, "2 / 2")
+    }
+
+    func testDeleteOnlyPageIsRejectedByViewModel() async throws {
+        let repository = EditorInMemoryNotesRepository(snapshot: .seed)
+        let note = try XCTUnwrap(NoteLibrarySnapshot.seed.notes.first)
+        let page = try XCTUnwrap(NoteLibrarySnapshot.seed.firstPage(in: note.id))
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: EditorInMemoryDrawingRepository()
+        )
+
+        await viewModel.load()
+        await viewModel.deletePage(id: page.id)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        XCTAssertEqual(savedSnapshot.pages(in: note.id).count, 1)
+        XCTAssertEqual(viewModel.page?.id, page.id)
+        XCTAssertNotNil(viewModel.errorMessage)
+    }
+
+    func testMovePagePersistsOrderAndKeepsCurrentSelection() async throws {
+        var snapshot = NoteLibrarySnapshot.seed
+        let note = try XCTUnwrap(snapshot.notes.first)
+        let firstPage = try XCTUnwrap(snapshot.firstPage(in: note.id))
+        let secondPage = try snapshot.appendPage(toNoteID: note.id, template: .ruled)
+        let thirdPage = try snapshot.appendPage(toNoteID: note.id, template: .dotted)
+        let repository = EditorInMemoryNotesRepository(snapshot: snapshot)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: EditorInMemoryDrawingRepository()
+        )
+
+        await viewModel.load()
+        await viewModel.goToPage(id: secondPage.id)
+        await viewModel.movePage(id: thirdPage.id, toIndex: 0)
+
+        let savedSnapshot = await repository.currentSnapshot()
+        XCTAssertEqual(savedSnapshot.pages(in: note.id).map(\.id), [thirdPage.id, firstPage.id, secondPage.id])
+        XCTAssertEqual(viewModel.pages.map(\.id), [thirdPage.id, firstPage.id, secondPage.id])
+        XCTAssertEqual(viewModel.page?.id, secondPage.id)
+        XCTAssertEqual(viewModel.pageIndicatorText, "3 / 3")
     }
 
     func testSaveIsThrottledUntilFlush() async throws {
@@ -269,6 +410,59 @@ final class NoteEditorViewModelTests: XCTestCase {
         XCTAssertNotNil(savedData)
     }
 
+    func testSaveUpdatesPreviewRevisionWithoutPublishingEditorState() async throws {
+        let repository = EditorInMemoryNotesRepository(snapshot: .seed)
+        let note = try XCTUnwrap(NoteLibrarySnapshot.seed.notes.first)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: EditorInMemoryDrawingRepository()
+        )
+
+        await viewModel.load()
+        let page = try XCTUnwrap(viewModel.page)
+        var publishCount = 0
+        let cancellable = viewModel.objectWillChange.sink {
+            publishCount += 1
+        }
+
+        XCTAssertEqual(viewModel.previewRevision(for: page), 0)
+
+        viewModel.save(PKDrawing())
+        viewModel.save(PKDrawing())
+
+        XCTAssertEqual(viewModel.previewRevision(for: page), 2)
+        XCTAssertEqual(publishCount, 0)
+        withExtendedLifetime(cancellable) {}
+    }
+
+    func testSavePublishesThrottledPreviewRefreshOnlyWhenOverviewIsVisible() async throws {
+        let repository = EditorInMemoryNotesRepository(snapshot: .seed)
+        let note = try XCTUnwrap(NoteLibrarySnapshot.seed.notes.first)
+        let viewModel = NoteEditorViewModel(
+            noteID: note.id,
+            notesRepository: repository,
+            drawingRepository: EditorInMemoryDrawingRepository(),
+            autosaveDelay: .seconds(60),
+            pageOverviewPreviewRefreshDelay: .milliseconds(10)
+        )
+
+        await viewModel.load()
+        let initialGeneration = viewModel.pageOverviewPreviewGeneration
+
+        viewModel.save(PKDrawing())
+        try await Task.sleep(for: .milliseconds(25))
+        XCTAssertEqual(viewModel.pageOverviewPreviewGeneration, initialGeneration)
+
+        viewModel.setPageOverviewPresented(true)
+        viewModel.save(PKDrawing())
+        XCTAssertEqual(viewModel.pageOverviewPreviewGeneration, initialGeneration)
+        try await Task.sleep(for: .milliseconds(25))
+        XCTAssertEqual(viewModel.pageOverviewPreviewGeneration, initialGeneration + 1)
+
+        viewModel.setPageOverviewPresented(false)
+    }
+
     func testConsecutiveDrawingChangesFlushOnce() async throws {
         let repository = EditorInMemoryNotesRepository(snapshot: .seed)
         let drawingRepository = EditorInMemoryDrawingRepository()
@@ -287,6 +481,82 @@ final class NoteEditorViewModelTests: XCTestCase {
 
         let saveCount = await drawingRepository.savedDrawingCount()
         XCTAssertEqual(saveCount, 1)
+    }
+
+    func testPreviewImageCacheReusesSameKeyAndRegeneratesOnRevisionTemplateSizeOrScaleChange() {
+        let cache = EditorPagePreviewImageCache(countLimit: 8)
+        let pageID = UUID()
+        let baseKey = EditorPagePreviewImageKey(
+            pageID: pageID,
+            template: .grid,
+            drawingRevision: 0,
+            pageSize: CGSize(width: 794, height: 1123),
+            screenScale: 2
+        )
+        var renderCount = 0
+
+        let firstImage = cache.image(for: baseKey) {
+            renderCount += 1
+            return UIImage()
+        }
+        let cachedImage = cache.image(for: baseKey) {
+            renderCount += 1
+            return UIImage()
+        }
+
+        XCTAssertTrue(firstImage === cachedImage)
+        XCTAssertEqual(renderCount, 1)
+
+        _ = cache.image(
+            for: EditorPagePreviewImageKey(
+                pageID: pageID,
+                template: .grid,
+                drawingRevision: 1,
+                pageSize: CGSize(width: 794, height: 1123),
+                screenScale: 2
+            )
+        ) {
+            renderCount += 1
+            return UIImage()
+        }
+        _ = cache.image(
+            for: EditorPagePreviewImageKey(
+                pageID: pageID,
+                template: .ruled,
+                drawingRevision: 0,
+                pageSize: CGSize(width: 794, height: 1123),
+                screenScale: 2
+            )
+        ) {
+            renderCount += 1
+            return UIImage()
+        }
+        _ = cache.image(
+            for: EditorPagePreviewImageKey(
+                pageID: pageID,
+                template: .grid,
+                drawingRevision: 0,
+                pageSize: CGSize(width: 600, height: 900),
+                screenScale: 2
+            )
+        ) {
+            renderCount += 1
+            return UIImage()
+        }
+        _ = cache.image(
+            for: EditorPagePreviewImageKey(
+                pageID: pageID,
+                template: .grid,
+                drawingRevision: 0,
+                pageSize: CGSize(width: 794, height: 1123),
+                screenScale: 3
+            )
+        ) {
+            renderCount += 1
+            return UIImage()
+        }
+
+        XCTAssertEqual(renderCount, 5)
     }
 }
 

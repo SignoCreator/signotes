@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EditorToolPaletteView: View {
     @Binding var selectedTemplate: PageTemplate
+    let onTogglePageOverview: () -> Void
     let onUndo: () -> Void
     let onRedo: () -> Void
     let commandAvailability: EditorCanvasCommandAvailability
@@ -17,16 +18,25 @@ struct EditorToolPaletteView: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: EditorToolbarMetrics.sectionSpacing) {
+            ToolbarCommandButton(
+                systemName: "rectangle.grid.2x2",
+                label: "Pages",
+                isEnabled: true,
+                action: onTogglePageOverview
+            )
+
+            ToolbarSectionDivider()
+
             HStack(alignment: .bottom, spacing: EditorToolbarMetrics.commandSpacing) {
                 ToolbarCommandButton(
                     systemName: "arrow.uturn.backward",
-                    label: "Annulla",
+                    label: "Undo",
                     isEnabled: commandAvailability.canUndo,
                     action: onUndo
                 )
                 ToolbarCommandButton(
                     systemName: "arrow.uturn.forward",
-                    label: "Ripeti",
+                    label: "Redo",
                     isEnabled: commandAvailability.canRedo,
                     action: onRedo
                 )

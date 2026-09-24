@@ -117,9 +117,9 @@ private struct NotePreviewThumbnail: View {
     ZStack {
         Color(uiColor: .systemGroupedBackground)
         HStack(spacing: 22) {
-            LibraryFolderTile(title: "Matematica", subtitle: "Cartella", color: .yellow) {}
+            LibraryFolderTile(title: "Math", subtitle: "Folder", color: .yellow) {}
                 .frame(width: 154)
-            LibraryNoteTile(title: "Lezione 1", subtitle: "1 pagina", color: .blue)
+            LibraryNoteTile(title: "Lesson 1", subtitle: "1 page", color: .blue)
                 .frame(width: 154)
         }
         .padding()

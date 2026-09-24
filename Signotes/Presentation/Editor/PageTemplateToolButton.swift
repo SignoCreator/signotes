@@ -28,7 +28,7 @@ struct PageTemplateToolButton: View {
             )
             .presentationCompactAdaptation(.popover)
         }
-        .accessibilityLabel("Sfondo pagina")
+        .accessibilityLabel("Page background")
         .accessibilityValue(selectedTemplate.displayName)
     }
 }

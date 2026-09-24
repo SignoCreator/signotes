@@ -31,7 +31,7 @@ struct ToolPresetSettingsPanel: View {
         let preset: DrawingToolPreset
         switch mode {
         case .create:
-            preset = DrawingToolPreset(name: "Nuova penna", kind: .fountainPen)
+            preset = DrawingToolPreset(name: "New pen", kind: .fountainPen)
         case let .edit(existingPreset, _):
             preset = existingPreset
         }
@@ -133,7 +133,7 @@ struct ToolPresetSettingsPanel: View {
                         dismiss()
                     }
                 } label: {
-                    Label("Elimina", systemImage: "trash")
+                    Label("Delete", systemImage: "trash")
                 }
             }
 
@@ -148,7 +148,7 @@ struct ToolPresetSettingsPanel: View {
                         dismiss()
                     }
                 } label: {
-                    Label("Crea", systemImage: "plus")
+                    Label("Create", systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(trimmedName.isEmpty)

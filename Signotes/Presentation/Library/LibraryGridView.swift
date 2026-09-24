@@ -30,7 +30,7 @@ struct LibraryGridView: View {
 
                 LibraryFolderTile(
                     title: folder.name,
-                    subtitle: "Cartella",
+                    subtitle: "Folder",
                     color: Color(hex: folder.colorHex) ?? .yellow
                 ) {
                     onSelectFolder(folder)
@@ -39,7 +39,7 @@ struct LibraryGridView: View {
                 .draggable(dragItem) {
                     LibraryFolderTile(
                         title: folder.name,
-                        subtitle: "Cartella",
+                        subtitle: "Folder",
                         color: Color(hex: folder.colorHex) ?? .yellow
                     ) {}
                     .frame(width: 154)
@@ -69,13 +69,13 @@ struct LibraryGridView: View {
                     Button {
                         onEditFolder(folder)
                     } label: {
-                        Label("Modifica", systemImage: "pencil")
+                        Label("Edit", systemImage: "pencil")
                     }
 
                     Button(role: .destructive) {
                         onDeleteFolder(folder)
                     } label: {
-                        Label("Elimina", systemImage: "trash")
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
@@ -93,7 +93,7 @@ struct LibraryGridView: View {
                 } label: {
                     LibraryNoteTile(
                         title: note.title,
-                        subtitle: "\(note.pageIDs.count) pagina",
+                        subtitle: "\(note.pageIDs.count) \(note.pageIDs.count == 1 ? "page" : "pages")",
                         color: Color(hex: note.colorHex) ?? .blue
                     )
                 }
@@ -101,7 +101,7 @@ struct LibraryGridView: View {
                 .draggable(dragItem) {
                     LibraryNoteTile(
                         title: note.title,
-                        subtitle: "\(note.pageIDs.count) pagina",
+                        subtitle: "\(note.pageIDs.count) \(note.pageIDs.count == 1 ? "page" : "pages")",
                         color: Color(hex: note.colorHex) ?? .blue
                     )
                     .frame(width: 154)
@@ -119,13 +119,13 @@ struct LibraryGridView: View {
                     Button {
                         onEditNote(note)
                     } label: {
-                        Label("Modifica", systemImage: "pencil")
+                        Label("Edit", systemImage: "pencil")
                     }
 
                     Button(role: .destructive) {
                         onDeleteNote(note)
                     } label: {
-                        Label("Elimina", systemImage: "trash")
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }

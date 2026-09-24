@@ -28,17 +28,17 @@ enum EditorDrawingTool: String, CaseIterable, Identifiable, Equatable, Hashable 
     var title: String {
         switch self {
         case .fountainPen:
-            "Stilografica"
+            "Fountain pen"
         case .pen:
-            "Penna"
+            "Pen"
         case .pencil:
-            "Matita"
+            "Pencil"
         case .marker:
-            "Evidenziatore"
+            "Highlighter"
         case .eraser:
-            "Gomma"
+            "Eraser"
         case .lasso:
-            "Lazo"
+            "Lasso"
         }
     }
 

@@ -23,7 +23,7 @@ The MVP should prove the writing experience and note organization without introd
   - dotted
 - Local autosave of `PKDrawing` data.
 - Basic page navigation.
-- Initial seed folder: `Matematica`, with `Lezione 1`.
+- Initial seed folder: `Math`, with `Lesson 1`.
 
 ### Not Included Yet
 

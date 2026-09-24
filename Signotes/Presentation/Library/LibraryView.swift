@@ -44,7 +44,7 @@ struct LibraryView: View {
 
                         if viewModel.visibleChildFolders.isEmpty && viewModel.visibleNotes.isEmpty {
                             ContentUnavailableView(
-                                "Nessun elemento",
+                                "No items",
                                 systemImage: "folder",
                                 description: Text(emptyStateDescription)
                             )
@@ -118,7 +118,7 @@ struct LibraryView: View {
                         } isTargeted: { isTargeted in
                             isBackDropTargeted = isTargeted && canDropActiveItem(toFolderID: parentDropTargetFolderID)
                         }
-                        .accessibilityLabel("Indietro")
+                        .accessibilityLabel("Back")
                     }
                 }
 
@@ -126,13 +126,13 @@ struct LibraryView: View {
                     Button {
                         editorMode = .createFolder
                     } label: {
-                        Label("Nuova cartella", systemImage: "folder.badge.plus")
+                        Label("New folder", systemImage: "folder.badge.plus")
                     }
 
                     Button {
                         editorMode = .createNote
                     } label: {
-                        Label("Nuova lezione", systemImage: "doc.badge.plus")
+                        Label("New note", systemImage: "doc.badge.plus")
                     }
                     .disabled(viewModel.currentFolderID == nil)
                 }
@@ -160,7 +160,7 @@ struct LibraryView: View {
             isPresented: deletionConfirmationBinding,
             titleVisibility: .visible
         ) {
-            Button("Elimina", role: .destructive) {
+            Button("Delete", role: .destructive) {
                 guard let deletionRequest else {
                     return
                 }
@@ -171,7 +171,7 @@ struct LibraryView: View {
                 }
             }
 
-            Button("Annulla", role: .cancel) {
+            Button("Cancel", role: .cancel) {
                 deletionRequest = nil
             }
         } message: {
@@ -197,8 +197,8 @@ struct LibraryView: View {
 
     private var emptyStateDescription: String {
         viewModel.currentFolderID == nil
-            ? "Crea una cartella per iniziare."
-            : "Crea una lezione o una sottocartella."
+            ? "Create a folder to get started."
+            : "Create a note or a subfolder."
     }
 
     private var parentDropTargetFolderID: UUID? {

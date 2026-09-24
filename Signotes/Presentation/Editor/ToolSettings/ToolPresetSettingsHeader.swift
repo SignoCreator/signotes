@@ -19,7 +19,7 @@ struct ToolPresetSettingsHeader: View {
                 }
 
             VStack(alignment: .leading, spacing: 6) {
-                TextField("Nome strumento", text: $name)
+                TextField("Tool name", text: $name)
                     .font(.title3.weight(.semibold))
                     .textFieldStyle(.plain)
                     .lineLimit(1)

@@ -19,7 +19,7 @@ struct InkColorPaletteView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Colore")
+            Text("Color")
                 .font(.subheadline.weight(.semibold))
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
@@ -36,7 +36,7 @@ struct InkColorPaletteView: View {
                             }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Colore \(hex)")
+                    .accessibilityLabel("Color \(hex)")
                 }
 
                 ColorPicker(
@@ -53,7 +53,7 @@ struct InkColorPaletteView: View {
                 )
                 .labelsHidden()
                 .frame(width: 30, height: 30)
-                .accessibilityLabel("Colore personalizzato")
+                .accessibilityLabel("Custom color")
             }
         }
     }

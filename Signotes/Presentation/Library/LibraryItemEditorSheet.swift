@@ -22,22 +22,22 @@ enum LibraryItemEditorMode: Identifiable {
     var title: String {
         switch self {
         case .createFolder:
-            "Nuova cartella"
+            "New folder"
         case .createNote:
-            "Nuova lezione"
+            "New note"
         case .editFolder:
-            "Modifica cartella"
+            "Edit folder"
         case .editNote:
-            "Modifica lezione"
+            "Edit note"
         }
     }
 
     var textFieldTitle: String {
         switch self {
         case .createFolder, .editFolder:
-            "Nome cartella"
+            "Folder name"
         case .createNote, .editNote:
-            "Titolo lezione"
+            "Note title"
         }
     }
 
@@ -68,9 +68,9 @@ enum LibraryItemEditorMode: Identifiable {
     var confirmationTitle: String {
         switch self {
         case .createFolder, .createNote:
-            "Crea"
+            "Create"
         case .editFolder, .editNote:
-            "Salva"
+            "Save"
         }
     }
 }
@@ -103,7 +103,7 @@ struct LibraryItemEditorSheet: View {
                         .textInputAutocapitalization(.sentences)
                 }
 
-                Section("Colore") {
+                Section("Color") {
                     HStack(spacing: 14) {
                         ForEach(LibraryColorPalette.colors, id: \.self) { colorHex in
                             Button {
@@ -132,7 +132,7 @@ struct LibraryItemEditorSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Annulla", action: onCancel)
+                    Button("Cancel", action: onCancel)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {

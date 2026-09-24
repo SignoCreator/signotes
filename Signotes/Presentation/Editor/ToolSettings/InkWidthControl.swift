@@ -7,7 +7,7 @@ struct InkWidthControl: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack {
-                Text("Spessore")
+                Text("Width")
                     .font(.subheadline.weight(.semibold))
 
                 Spacer()

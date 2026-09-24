@@ -54,10 +54,10 @@ struct EditorToolButton: View {
 
     private var accessibilityHint: String {
         if isSelected, preset.kind.isWritingTool {
-            return "Tocca di nuovo per aprire le impostazioni."
+            return "Tap again to open settings."
         }
 
-        return "Seleziona lo strumento."
+        return "Selects the tool."
     }
 }
 
@@ -84,7 +84,7 @@ struct AddToolPresetButton: View {
         }
         .buttonStyle(.plain)
         .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .accessibilityLabel("Aggiungi strumento")
-        .accessibilityHint("Crea una nuova penna personalizzata.")
+        .accessibilityLabel("Add tool")
+        .accessibilityHint("Create a new custom pen.")
     }
 }

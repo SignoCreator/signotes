@@ -16,18 +16,18 @@ enum LibraryDeletionRequest: Identifiable {
     var title: String {
         switch self {
         case .folder:
-            "Elimina cartella?"
+            "Delete folder?"
         case .note:
-            "Elimina lezione?"
+            "Delete note?"
         }
     }
 
     var message: String {
         switch self {
         case let .folder(folder):
-            "La cartella \"\(folder.name)\" e tutto il suo contenuto verranno eliminati definitivamente."
+            "The folder \"\(folder.name)\" and everything in it will be permanently deleted."
         case let .note(note):
-            "La lezione \"\(note.title)\" e le sue pagine verranno eliminate definitivamente."
+            "The note \"\(note.title)\" and its pages will be permanently deleted."
         }
     }
 }

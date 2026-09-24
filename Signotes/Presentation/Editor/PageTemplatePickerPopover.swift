@@ -6,7 +6,7 @@ struct PageTemplatePickerPopover: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Carta")
+            Text("Paper")
                 .font(.headline.weight(.semibold))
 
             HStack(spacing: 10) {

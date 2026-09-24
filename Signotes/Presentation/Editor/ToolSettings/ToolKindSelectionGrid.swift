@@ -13,7 +13,7 @@ struct ToolKindSelectionGrid: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Tipo")
+            Text("Type")
                 .font(.subheadline.weight(.semibold))
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: 9) {

@@ -2,9 +2,7 @@
 
 A local-first iPad note-taking app for Apple Pencil, built with SwiftUI and PencilKit. Write on real A4 pages with paper templates, a fountain pen and custom tools, and keep everything organized in folders — no account, no cloud.
 
-<!-- Add a short screen recording here, e.g.:
-<p align="center"><img src="docs/media/demo.gif" width="720" alt="Signotes demo"></p>
--->
+<p align="center"><img src="docs/media/demo.gif" width="720" alt="Signotes demo: creating a folder and a note, writing with the fountain pen and highlighter, and managing pages"></p>
 
 ## Features
 
